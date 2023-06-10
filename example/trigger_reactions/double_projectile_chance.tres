@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TriggerReaction" load_steps=3 format=3 uid="uid://dhmi7wxkd8iq8"]
+
+[ext_resource type="Script" path="res://example/trigger_reactions/reactions.gd" id="2_yx7er"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="3_0v385"]
+
+[resource]
+resource_name = "Double Projectile Chance"
+script = ExtResource("3_0v385")
+reaction_id = &"double_projectile_chance"
+trigger_id = 0
+params = [0.25, 10.0]
+priority = 0
+reaction_script = ExtResource("2_yx7er")
+func_attached = &""
+func_applied = &"double_projectile_chance"
+func_detached = &""

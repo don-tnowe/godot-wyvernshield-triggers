@@ -1,0 +1,43 @@
+[gd_resource type="Resource" load_steps=10 format=3 uid="uid://bbreqrsbo132q"]
+
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/editor/trigger_database.gd" id="1_hbgb2"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="2_7go4y"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="3_4q6la"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/editor/trigger_info.gd" id="4_23861"]
+
+[sub_resource type="Resource" id="Resource_4wedb"]
+resource_name = "Ability Used"
+script = ExtResource("4_23861")
+trigger_name = &"ability_used"
+property_infos = Array[String](["ability", "target", "spawned_nodes : Array[Node] = []"])
+
+[sub_resource type="Resource" id="Resource_gtdv2"]
+resource_name = "Ability Get Cost"
+script = ExtResource("4_23861")
+trigger_name = &"ability_get_cost"
+property_infos = Array[String](["ability", "target", "cost : float"])
+
+[sub_resource type="Resource" id="Resource_8xpwb"]
+resource_name = "Hit Landed"
+script = ExtResource("4_23861")
+trigger_name = &"hit_landed"
+property_infos = Array[String](["target", "with_ability", "damage : float"])
+
+[sub_resource type="Resource" id="Resource_ye17i"]
+resource_name = "Hit Received"
+script = ExtResource("4_23861")
+trigger_name = &"hit_received"
+property_infos = Array[String](["from", "ability", "damage : float"])
+
+[sub_resource type="Resource" id="Resource_rr2g6"]
+resource_name = "Move State Changed"
+script = ExtResource("4_23861")
+trigger_name = &"move_state_changed"
+property_infos = Array[String](["old_state", "new_state"])
+
+[resource]
+script = ExtResource("1_hbgb2")
+triggers = Array[Resource]([SubResource("Resource_4wedb"), SubResource("Resource_gtdv2"), SubResource("Resource_8xpwb"), SubResource("Resource_ye17i"), SubResource("Resource_rr2g6")])
+trigger_holder_script = ExtResource("2_7go4y")
+trigger_reaction_script = ExtResource("3_4q6la")
+manual_update = false

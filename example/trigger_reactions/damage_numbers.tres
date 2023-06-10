@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TriggerReaction" load_steps=4 format=3 uid="uid://3nop27vff2d3"]
+
+[ext_resource type="PackedScene" uid="uid://d4hgfyu4vouj" path="res://example/scenes/damage_numbers.tscn" id="1_njkoy"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="1_r54mh"]
+[ext_resource type="Script" path="res://example/trigger_reactions/reactions.gd" id="2_0iixr"]
+
+[resource]
+resource_name = "Damage Numbers"
+script = ExtResource("1_r54mh")
+reaction_id = &"damage_numbers"
+trigger_id = 3
+params = [ExtResource("1_njkoy")]
+priority = -1000
+reaction_script = ExtResource("2_0iixr")
+func_attached = &""
+func_applied = &"spawn_damage_numbers"
+func_detached = &""

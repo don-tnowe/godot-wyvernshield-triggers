@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TriggerReaction" load_steps=3 format=3 uid="uid://c3yexumyjuomg"]
+
+[ext_resource type="Script" path="res://example/trigger_reactions/reactions.gd" id="1_u1oqp"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="2_een7l"]
+
+[resource]
+resource_name = "Evade Chance"
+script = ExtResource("2_een7l")
+reaction_id = &"evade_chance"
+trigger_id = 3
+params = [0.2]
+priority = 0
+reaction_script = ExtResource("1_u1oqp")
+func_attached = &""
+func_applied = &"evade_chance"
+func_detached = &""

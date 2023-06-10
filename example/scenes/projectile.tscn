@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://ba3urllidb2jd"]
+
+[ext_resource type="Script" path="res://example/scenes/projectile.gd" id="1_iiebm"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6fljq"]
+radius = 0.3
+
+[sub_resource type="Gradient" id="Gradient_b6ffq"]
+offsets = PackedFloat32Array(0.455696, 0.71308, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0, 0, 0.28692, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_5ot10"]
+gradient = SubResource("Gradient_b6ffq")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 1)
+
+[node name="Projectile" type="Area3D"]
+script = ExtResource("1_iiebm")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_6fljq")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+billboard = 1
+render_priority = 5
+texture = SubResource("GradientTexture2D_5ot10")

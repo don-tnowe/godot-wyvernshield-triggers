@@ -1,0 +1,302 @@
+[gd_scene load_steps=25 format=3 uid="uid://dhtc1iowcn3o6"]
+
+[ext_resource type="Script" path="res://example/scenes/hero.gd" id="1_7me18"]
+[ext_resource type="Texture2D" uid="uid://cv5xfk7vayh5j" path="res://example/graphics/characters/hero.png" id="1_cjwhw"]
+[ext_resource type="PackedScene" uid="uid://ba3urllidb2jd" path="res://example/scenes/projectile.tscn" id="2_gqkka"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="2_hh3hf"]
+[ext_resource type="Resource" uid="uid://bbreqrsbo132q" path="res://addons/wyvernshield_triggers/trigger_database.tres" id="3_01d1p"]
+[ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="4_ckoyp"]
+[ext_resource type="Resource" uid="uid://dhmi7wxkd8iq8" path="res://example/trigger_reactions/double_projectile_chance.tres" id="5_m7016"]
+[ext_resource type="Resource" uid="uid://c3yexumyjuomg" path="res://example/trigger_reactions/evade_chance.tres" id="6_gjpsw"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_mxlvs"]
+height = 0.446696
+radius = 0.151793
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_00mx1"]
+height = 0.446696
+radius = 0.151793
+
+[sub_resource type="Animation" id="43"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual/Flip/Sprite3D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual/Flip/Sprite3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.25, 0)]
+}
+
+[sub_resource type="Animation" id="42"]
+resource_name = "idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual/Flip/Sprite3D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual/Flip/Sprite3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.296975, 0)]
+}
+
+[sub_resource type="Animation" id="44"]
+resource_name = "run"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual/Flip/Sprite3D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual/Flip/Sprite3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.1, 0.3),
+"transitions": PackedFloat32Array(2, 0.5),
+"update": 0,
+"values": [Vector3(0, 0.4, 0), Vector3(0, 0.25, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_f6ne8"]
+_data = {
+"RESET": SubResource("43"),
+"idle": SubResource("42"),
+"run": SubResource("44")
+}
+
+[sub_resource type="Gradient" id="28"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.917763, 1)
+colors = PackedColorArray(0, 0, 0, 0.658273, 0, 0, 0, 0.0568294, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="29"]
+gradient = SubResource("28")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Gradient" id="26"]
+offsets = PackedFloat32Array(0, 0.96129, 1)
+colors = PackedColorArray(1, 0, 0.181641, 1, 0.59668, 0, 0, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="32"]
+gradient = SubResource("26")
+fill = 1
+fill_from = Vector2(0.515278, 0.498611)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="AtlasTexture" id="30"]
+atlas = SubResource("32")
+region = Rect2(0, 0, 32, 64)
+
+[sub_resource type="Gradient" id="37"]
+offsets = PackedFloat32Array(0.835766, 0.883212, 0.974453, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="38"]
+gradient = SubResource("37")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Gradient" id="36"]
+offsets = PackedFloat32Array(0.00967742, 0.896774, 1)
+colors = PackedColorArray(0, 0.501953, 1, 1, 0.294922, 0, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="33"]
+gradient = SubResource("36")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="AtlasTexture" id="31"]
+atlas = SubResource("33")
+region = Rect2(32, 0, 64, 64)
+margin = Rect2(32, 0, 0, 0)
+filter_clip = true
+
+[node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("reactions", "anim")]
+script = ExtResource("1_7me18")
+projectile_scene = ExtResource("2_gqkka")
+reactions = NodePath("Reactions")
+anim = NodePath("Anim")
+move_maxspeed = 4.0
+move_accel = 16.0
+move_brake = 32.0
+projectile_speed = 12.0
+
+[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "ui", "shape")]
+script = ExtResource("2_hh3hf")
+actor = NodePath("..")
+initial_reactions = Array[Resource("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd")]([ExtResource("4_ckoyp"), ExtResource("5_m7016"), ExtResource("6_gjpsw")])
+database = ExtResource("3_01d1p")
+actor_visual = NodePath("../Visual/Flip/Sprite3D")
+ui = NodePath("../HUD")
+shape = NodePath("../Shape")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.234871, 0)
+shape = SubResource("CylinderShape3D_mxlvs")
+
+[node name="CombatArea" type="Area3D" parent="." groups=["hurtbox"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.234871, 0)
+
+[node name="Shape2" type="CollisionShape3D" parent="CombatArea"]
+shape = SubResource("CylinderShape3D_00mx1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Flip" type="Node3D" parent="Visual"]
+
+[node name="Sprite3D" type="Sprite3D" parent="Visual/Flip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+pixel_size = 0.02
+billboard = 1
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("1_cjwhw")
+hframes = 2
+vframes = 2
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.666532, 0.745476, 0, -0.745476, 0.666532, 0, 3.45, 3)
+current = true
+
+[node name="Anim" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_f6ne8")
+}
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ResourceBars" type="Control" parent="HUD/Control"]
+anchors_preset = 0
+offset_top = -66.0
+offset_bottom = -66.0
+scale = Vector2(2, 2)
+
+[node name="Life" type="TextureProgressBar" parent="HUD/Control/ResourceBars"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+max_value = 102.25
+step = 0.0
+value = 55.3
+fill_mode = 3
+texture_under = SubResource("29")
+texture_progress = SubResource("30")
+
+[node name="Magic" type="TextureProgressBar" parent="HUD/Control/ResourceBars"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+step = 0.0
+value = 69.45
+fill_mode = 3
+texture_over = SubResource("38")
+texture_progress = SubResource("31")
+
+[node name="Label" type="Label" parent="HUD/Control"]
+visible = false
+layout_mode = 0
+offset_left = 81.0
+offset_top = -115.0
+offset_right = 486.0
+offset_bottom = -9.0
+theme_override_colors/font_outline_color = Color(0.109804, 0.0901961, 0.792157, 1)
+text = "[ Rightclick ] - Frailty Shards (reduces defense)
+[ Q ] - Fire Bomb (hit burning targets
+to advance burn faster)
+[ E ] - Regen"
+
+[node name="Label2" type="Label" parent="HUD/Control"]
+visible = false
+layout_mode = 0
+offset_left = -402.0
+offset_top = -117.0
+offset_right = -81.0
+offset_bottom = -12.0
+grow_horizontal = 0
+theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
+text = "[ WASD ] - Move
+[ Leftclick ] - Attack
+Hit statues to restore Magic
+When you break statues, Health orbs can drop
+Statues slow on touch"
+
+[node name="Label3" type="Label" parent="HUD/Control"]
+layout_mode = 0
+offset_left = -559.0
+offset_top = -187.0
+offset_right = -75.0
+offset_bottom = -57.0
+theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
+text = "[ ARROWS ] - Move
+[ Space ] - Attack
+Projectiles have a chance to fire twice. Damage has a chance to become zero. Both are TriggerReactions, same for damage numbers!"
+autowrap_mode = 2

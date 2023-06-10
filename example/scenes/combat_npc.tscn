@@ -1,0 +1,121 @@
+[gd_scene load_steps=13 format=3 uid="uid://dbp356mq1qdvj"]
+
+[ext_resource type="Texture2D" uid="uid://c7wtq7wodamhy" path="res://example/graphics/characters/ice_wyverngoyle.png" id="1"]
+[ext_resource type="Script" path="res://example/scenes/combat_npc.gd" id="1_v1b1d"]
+[ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="3_4o85h"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="3_snb4m"]
+[ext_resource type="Resource" uid="uid://c3yexumyjuomg" path="res://example/trigger_reactions/evade_chance.tres" id="4_h7wt6"]
+[ext_resource type="Resource" uid="uid://bbreqrsbo132q" path="res://addons/wyvernshield_triggers/trigger_database.tres" id="5_e0npy"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_rsqks"]
+height = 0.8
+radius = 0.25
+
+[sub_resource type="CylinderShape3D" id="2"]
+height = 0.8
+radius = 0.25
+
+[sub_resource type="Animation" id="23"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.0724338, 0)]
+}
+
+[sub_resource type="Animation" id="20"]
+resource_name = "hurt"
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.23),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(3, 3, 3, 1), Color(3, 3, 3, 1), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.14, 0.18, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-0.1, 0.07, 0), Vector3(0.06, 0.07, 0), Vector3(0.04, 0.07, 0), Vector3(-0.02, 0.07, 0), Vector3(0, 0.0724338, 0)]
+}
+
+[sub_resource type="Animation" id="21"]
+resource_name = "init"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0m301"]
+_data = {
+"RESET": SubResource("23"),
+"hurt": SubResource("20"),
+"init": SubResource("21")
+}
+
+[node name="CombatNPC" type="CharacterBody3D" node_paths=PackedStringArray("reactions")]
+script = ExtResource("1_v1b1d")
+reactions = NodePath("Reactions")
+
+[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "hitbox", "hurtbox", "shape")]
+script = ExtResource("3_snb4m")
+actor = NodePath("..")
+initial_reactions = Array[Resource("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd")]([ExtResource("3_4o85h"), ExtResource("4_h7wt6")])
+database = ExtResource("5_e0npy")
+actor_visual = NodePath("../Sprite2D")
+hitbox = NodePath("../CombatArea")
+hurtbox = NodePath("../CombatArea")
+shape = NodePath("../CombatArea/Shape")
+
+[node name="CombatArea" type="Area3D" parent="." groups=["hitbox", "hurtbox"]]
+
+[node name="Shape" type="CollisionShape3D" parent="CombatArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.044347, 0)
+shape = SubResource("CylinderShape3D_rsqks")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.044347, 0)
+shape = SubResource("2")
+
+[node name="Sprite2D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0724338, 0)
+pixel_size = 0.02
+billboard = 1
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("1")
+hframes = 2
+vframes = 2
+
+[node name="Anim" type="AnimationPlayer" parent="."]
+autoplay = "init"
+libraries = {
+"": SubResource("AnimationLibrary_0m301")
+}
