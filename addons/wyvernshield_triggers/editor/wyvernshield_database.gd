@@ -3,7 +3,9 @@ extends Resource
 
 const TriggerInfo := preload("res://addons/wyvernshield_triggers/editor/trigger_info.gd")
 
-@export var triggers : Array[Resource]:
+## List of triggers that activate [TriggerReaction]s. [br]
+## Call the trigger's [code]trigger_name[/code] like it's a function to trigger all reactions.
+@export var triggers : Array[TriggerInfo]:
 	set(v):
 		triggers = v
 		for i in v.size():
@@ -13,8 +15,6 @@ const TriggerInfo := preload("res://addons/wyvernshield_triggers/editor/trigger_
 
 			if !v[i].changed.is_connected(_on_trigger_changed):
 				v[i].changed.connect(_on_trigger_changed)
-
-		# update_scripts.call_deferred()
 
 @export var trigger_holder_script : Script
 @export var trigger_reaction_script : Script
