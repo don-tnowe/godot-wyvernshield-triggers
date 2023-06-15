@@ -1,16 +1,27 @@
 # Wyvernshield Triggers
 
-Attach a bunch of trigger reactions, then do `hit_received(who, how, damage)` and all the reactions will contribute to the received hit.
+Attach a bunch of trigger reactions to `reaction_container`, then do `reaction_container.hit_received(who, how, damage)` and all the reactions will contribute to the received hit.
 
-#
+- Reactions that change the outcome of an action based on conditions - can be 
+- Stat modifications that support grouping changes to then remove together - when an item gets unequipped, for example
+- Temporary stat changes and reactions
+- Custom inspector view for reactions and stat modifications
 
-Like, let's say you've got a huge damage calculation. Defense, elemental resistance, percent damage reduction, buffs that reduce damage, dodge chance, block chance, health barrier... Did I forget something? Anyway, just make a `TriggerReaction` for each of them - and attach to the character. They will modify the damage - and do some extra things if a certain defense type activates, or under other conditions.
+# Setup
+
+- Give your actors a `TriggerReactionContainer` and/or a `StatSheet`
+- The Resources inside these two objects can be defined locally or saved as files.
+- To edit trigger parameters and their result object's properties, click the View Database button inside a `TriggerReaction`.
+
+# Trigger Reactions
+
+Like, let's say you've got a huge damage calculation. Defense, elemental resistance, buffs that reduce damage, dodge chance, block chance (*but only with a shield*), health barrier, effects on hit, damage based on monster class... Did I forget something? Anyway, just make a `TriggerReaction` for each of them - and attach to the character. They will modify the damage - and do some extra things if a certain defense type activates, or under other conditions.
 
 Whenever you want: start of game, item equipped, status effects applied...
 
 Any order. Priority system is in place.
 
-# Usage
+## Usage
 
 - `TriggerReactionContainer` - add it to a character and connect all references (*if you want to*)
 - `TriggerDatabase` - configure triggers and their parameters with types and defaults, which coincide with properties of the triggers' results. There's a `trigger_database.tres` inside `addons/wyvernshield_triggers`, which you can also access from `TriggerReactionContainer`s.
@@ -21,32 +32,19 @@ To trigger a trigger, just call the function with its name on the `TriggerReacti
 To script a trigger reaction, give it a script with the configured functions - function must accept the trigger's result object which can be modified. 
 
 **Example**:
-- you have a `healing_received` trigger
-- its parameters are `healer : Node, ability : Ability, amount : float, healing_type : int = 0`
-- this is the generated interface:
 
-```
-func healing_received(healer : Node, ability : Ability, amount : float, healing_type : int = 0) -> HealingReceivedResult:
-    var result := HitReceivedResult.new()
-    result.healer = healer
-    result.ability = ability
-    result.amount = amount
-    result.healing_type = healing_type
-    for x in _trigger_reactions[18]:
-        x._applied(self, result)
-    
-    return result
+You have a `healing_received` trigger
 
-class HealingReceivedResult extends Resource:
-    @export var healer : Node
-    @export var ability : Ability
-    @export var amount : float
-    @export var healing_type : int = 0
-    pass
-```
+Its parameters are `healer : Node, ability : Ability, amount : float, healing_type : int = 0`
 
-- so you can do `var result = reaction_container.healing_received(self, holy_light_ability, 26)` and heal yourself by `result.amount`. If no reactions changed it, it'll be the same as at the input.
-- or you could add a reaction that has:
+If you configure it like that in the database, then on any reaction container you can:
+
+    var result = reaction_container.healing_received(self, holy_light_ability, 26)
+    health += result.amount
+
+If no reactions changed `amount`, it'll be the same as at the input.
+
+Or you could add a reaction that has:
 
 ```
 func heal_more_at_low_health(container : TriggerReactionContainer, result : RefCounted, reaction : TriggerReaction):
