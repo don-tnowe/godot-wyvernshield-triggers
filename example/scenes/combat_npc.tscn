@@ -1,11 +1,27 @@
-[gd_scene load_steps=13 format=3 uid="uid://dbp356mq1qdvj"]
+[gd_scene load_steps=16 format=3 uid="uid://darlgo4gn52e0"]
 
 [ext_resource type="Texture2D" uid="uid://c7wtq7wodamhy" path="res://example/graphics/characters/ice_wyverngoyle.png" id="1"]
-[ext_resource type="Script" path="res://example/scenes/combat_npc.gd" id="1_v1b1d"]
+[ext_resource type="Script" path="res://example/scenes/combat_actor.gd" id="1_bcc0g"]
 [ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="3_4o85h"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="3_snb4m"]
 [ext_resource type="Resource" uid="uid://c3yexumyjuomg" path="res://example/trigger_reactions/evade_chance.tres" id="4_h7wt6"]
-[ext_resource type="Resource" uid="uid://bbreqrsbo132q" path="res://addons/wyvernshield_triggers/trigger_database.tres" id="5_e0npy"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="5_khddg"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_modification.gd" id="6_g0qcg"]
+[ext_resource type="Script" path="res://example/scenes/status_effect_view.gd" id="7_77k41"]
+
+[sub_resource type="Resource" id="Resource_nwsap"]
+resource_name = "./init (2)"
+script = ExtResource("6_g0qcg")
+at_path = &"init"
+magnitude = 1.0
+expires_in = 0.0
+stat_count = 2
+stat_0/stat = &"max_hp"
+stat_0/value = 80.0
+stat_0/type = 0
+stat_1/stat = &"dodge_chance"
+stat_1/value = 20.0
+stat_1/type = 0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_rsqks"]
 height = 0.8
@@ -80,19 +96,31 @@ _data = {
 "init": SubResource("21")
 }
 
-[node name="CombatNPC" type="CharacterBody3D" node_paths=PackedStringArray("reactions")]
-script = ExtResource("1_v1b1d")
+[node name="CombatNPC" type="CharacterBody3D" node_paths=PackedStringArray("reactions", "stats")]
+script = ExtResource("1_bcc0g")
 reactions = NodePath("Reactions")
+stats = NodePath("StatSheet")
 
-[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "hitbox", "hurtbox", "shape")]
+[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "stats", "anim_list", "shape")]
 script = ExtResource("3_snb4m")
 actor = NodePath("..")
 initial_reactions = Array[Resource("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd")]([ExtResource("3_4o85h"), ExtResource("4_h7wt6")])
-database = ExtResource("5_e0npy")
 actor_visual = NodePath("../Sprite2D")
-hitbox = NodePath("../CombatArea")
-hurtbox = NodePath("../CombatArea")
+stats = NodePath("../StatSheet")
+anim_list = NodePath("../Anim")
 shape = NodePath("../CombatArea/Shape")
+
+[node name="StatSheet" type="Node" parent="."]
+script = ExtResource("5_khddg")
+initial_stats = Array[ExtResource("6_g0qcg")]([SubResource("Resource_nwsap")])
+
+[node name="StatusEffectView" type="Label3D" parent="." node_paths=PackedStringArray("reactions", "stats")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.777463, 0)
+billboard = 1
+render_priority = 10
+script = ExtResource("7_77k41")
+reactions = NodePath("../Reactions")
+stats = NodePath("../StatSheet")
 
 [node name="CombatArea" type="Area3D" parent="." groups=["hitbox", "hurtbox"]]
 

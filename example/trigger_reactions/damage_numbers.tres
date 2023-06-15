@@ -8,10 +8,11 @@
 resource_name = "Damage Numbers"
 script = ExtResource("1_r54mh")
 reaction_id = &"damage_numbers"
-trigger_id = 3
 params = [ExtResource("1_njkoy")]
 priority = -1000
+expires_in = 0.0
+trigger_id = 4
 reaction_script = ExtResource("2_0iixr")
-func_attached = &""
 func_applied = &"spawn_damage_numbers"
+func_attached = &""
 func_detached = &""

@@ -9,20 +9,21 @@ signal target_hit(target, damage_result)
 
 
 func _ready():
-  area_entered.connect(_on_area_entered)
+	area_entered.connect(_on_area_entered)
 
 
-func launch(with_velocity : Vector3, from_sender : Node):
-  velocity = with_velocity
-  sender = from_sender
+func launch(with_damage : float, with_velocity : Vector3, from_sender : Node):
+	damage = with_damage
+	velocity = with_velocity
+	sender = from_sender
 
 
 func _physics_process(delta):
-  position += velocity * delta
-  lifetime -= delta
-  if lifetime < 0: queue_free()
+	position += velocity * delta
+	lifetime -= delta
+	if lifetime < 0: queue_free()
 
 
 func _on_area_entered(area):
-  if area.is_in_group("hurtbox") && area.get_parent() != sender:
-    target_hit.emit(area, area.get_parent().damage(sender, null, damage))
+	if area.is_in_group("hurtbox") && area.get_parent() != sender:
+		target_hit.emit(area, area.get_parent().damage(sender, null, damage))

@@ -1,13 +1,111 @@
-[gd_scene load_steps=25 format=3 uid="uid://dhtc1iowcn3o6"]
+[gd_scene load_steps=39 format=3 uid="uid://dhtc1iowcn3o6"]
 
 [ext_resource type="Script" path="res://example/scenes/hero.gd" id="1_7me18"]
 [ext_resource type="Texture2D" uid="uid://cv5xfk7vayh5j" path="res://example/graphics/characters/hero.png" id="1_cjwhw"]
-[ext_resource type="PackedScene" uid="uid://ba3urllidb2jd" path="res://example/scenes/projectile.tscn" id="2_gqkka"]
+[ext_resource type="PackedScene" uid="uid://ba3urllidb2jd" path="res://example/scenes/projectile.tscn" id="2_32puw"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="2_hh3hf"]
-[ext_resource type="Resource" uid="uid://bbreqrsbo132q" path="res://addons/wyvernshield_triggers/trigger_database.tres" id="3_01d1p"]
+[ext_resource type="Script" path="res://example/resource_scripts/combat_move.gd" id="2_pxbg6"]
 [ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="4_ckoyp"]
+[ext_resource type="Script" path="res://example/resource_scripts/equipment_item.gd" id="5_5omta"]
 [ext_resource type="Resource" uid="uid://dhmi7wxkd8iq8" path="res://example/trigger_reactions/double_projectile_chance.tres" id="5_m7016"]
 [ext_resource type="Resource" uid="uid://c3yexumyjuomg" path="res://example/trigger_reactions/evade_chance.tres" id="6_gjpsw"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="6_q42py"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="7_kc2b5"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_modification.gd" id="8_1amqb"]
+[ext_resource type="Script" path="res://example/scenes/status_effect_view.gd" id="10_d66xx"]
+
+[sub_resource type="Resource" id="Resource_rnn4u"]
+resource_name = "Basic Shot"
+script = ExtResource("2_pxbg6")
+scenes = Array[PackedScene]([ExtResource("2_32puw")])
+reactions = Array[ExtResource("6_q42py")]([])
+
+[sub_resource type="Resource" id="Resource_c8elq"]
+resource_name = "./status/sharpshooter (3) (5.00s)"
+script = ExtResource("8_1amqb")
+at_path = &"status/sharpshooter"
+magnitude = 1.0
+expires_in = 5.0
+stat_count = 3
+stat_0/stat = &"movement_speed"
+stat_0/value = 0.5
+stat_0/type = 3
+stat_1/stat = &"projectile_speed"
+stat_1/value = 1.5
+stat_1/type = 3
+stat_2/stat = &"weapon_damage"
+stat_2/value = 1.25
+stat_2/type = 3
+
+[sub_resource type="Resource" id="Resource_1pnob"]
+resource_name = "Sharpshooter"
+script = ExtResource("2_pxbg6")
+scenes = Array[PackedScene]([])
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_c8elq")
+
+[sub_resource type="Resource" id="Resource_4g3r7"]
+resource_name = "./equip/weapon (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/weapon"
+magnitude = 1.0
+expires_in = 0.0
+stat_count = 2
+stat_0/stat = &"weapon_damage"
+stat_0/value = 8.0
+stat_0/type = 0
+stat_1/stat = &"projectile_speed"
+stat_1/value = 12.0
+stat_1/type = 0
+
+[sub_resource type="Resource" id="Resource_ruwgc"]
+resource_name = "Basic"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_4g3r7")
+
+[sub_resource type="Resource" id="Resource_725pq"]
+resource_name = "Double Projectile Chance (OVERRIDE)"
+script = ExtResource("6_q42py")
+reaction_id = &"double_projectile_chance"
+params = [0.25, 10.0]
+priority = 0
+expires_in = 0.0
+inherit_from = ExtResource("5_m7016")
+
+[sub_resource type="Resource" id="Resource_r881i"]
+resource_name = "./equip/weapon (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/weapon"
+magnitude = 1.0
+expires_in = 0.0
+stat_count = 2
+stat_0/stat = &"weapon_damage"
+stat_0/value = 4.0
+stat_0/type = 0
+stat_1/stat = &"projectile_speed"
+stat_1/value = 4.0
+stat_1/type = 0
+
+[sub_resource type="Resource" id="Resource_ffyvc"]
+resource_name = "Double Shot"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([SubResource("Resource_725pq")])
+stats = SubResource("Resource_r881i")
+
+[sub_resource type="Resource" id="Resource_6hu62"]
+resource_name = "./init (2)"
+script = ExtResource("8_1amqb")
+at_path = &"init"
+magnitude = 1.0
+expires_in = 0.0
+stat_count = 2
+stat_0/stat = &"max_hp"
+stat_0/value = 0.0
+stat_0/type = 0
+stat_1/stat = &"movement_speed"
+stat_1/value = 4.0
+stat_1/type = 0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_mxlvs"]
 height = 0.446696
@@ -158,24 +256,38 @@ region = Rect2(32, 0, 64, 64)
 margin = Rect2(32, 0, 0, 0)
 filter_clip = true
 
-[node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("reactions", "anim")]
+[node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("anim", "reactions", "stats")]
 script = ExtResource("1_7me18")
-projectile_scene = ExtResource("2_gqkka")
-reactions = NodePath("Reactions")
+available_moves = Array[ExtResource("2_pxbg6")]([SubResource("Resource_rnn4u"), SubResource("Resource_1pnob")])
+available_weapons = Array[ExtResource("5_5omta")]([SubResource("Resource_ruwgc"), SubResource("Resource_ffyvc")])
 anim = NodePath("Anim")
 move_maxspeed = 4.0
 move_accel = 16.0
 move_brake = 32.0
-projectile_speed = 12.0
+reactions = NodePath("Reactions")
+stats = NodePath("StatSheet")
 
-[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "ui", "shape")]
+[node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "stats", "anim_list", "ui", "shape")]
 script = ExtResource("2_hh3hf")
 actor = NodePath("..")
-initial_reactions = Array[Resource("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd")]([ExtResource("4_ckoyp"), ExtResource("5_m7016"), ExtResource("6_gjpsw")])
-database = ExtResource("3_01d1p")
+initial_reactions = Array[ExtResource("6_q42py")]([ExtResource("4_ckoyp"), ExtResource("6_gjpsw")])
 actor_visual = NodePath("../Visual/Flip/Sprite3D")
+stats = NodePath("../StatSheet")
+anim_list = NodePath("../Anim")
 ui = NodePath("../HUD")
 shape = NodePath("../Shape")
+
+[node name="StatSheet" type="Node" parent="."]
+script = ExtResource("7_kc2b5")
+initial_stats = Array[ExtResource("8_1amqb")]([SubResource("Resource_6hu62")])
+
+[node name="StatusEffectView" type="Label3D" parent="." node_paths=PackedStringArray("reactions", "stats")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.777463, 0)
+billboard = 1
+render_priority = 10
+script = ExtResource("10_d66xx")
+reactions = NodePath("../Reactions")
+stats = NodePath("../StatSheet")
 
 [node name="Shape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.234871, 0)
@@ -298,5 +410,32 @@ offset_bottom = -57.0
 theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
 text = "[ ARROWS ] - Move
 [ Space ] - Attack
-Projectiles have a chance to fire twice. Damage has a chance to become zero. Both are TriggerReactions, same for damage numbers!"
+- Depends on weapon (see menu to the right)
+[ 1 ] - Buff (x0.5 speed, x1.5 projectile speed, x1.25 damage)
+- Can be applied several times BUT effects from same path don't stack."
 autowrap_mode = 2
+
+[node name="OptionButton" type="OptionButton" parent="HUD/Control"]
+layout_mode = 0
+offset_left = 197.0
+offset_top = -163.0
+offset_right = 414.0
+offset_bottom = -114.0
+focus_mode = 0
+item_count = 2
+selected = 0
+popup/item_0/text = "Strong"
+popup/item_0/id = 0
+popup/item_1/text = "Double"
+popup/item_1/id = 1
+
+[node name="Label4" type="Label" parent="HUD/Control"]
+layout_mode = 0
+offset_left = 106.0
+offset_top = -150.0
+offset_right = 174.0
+offset_bottom = -124.0
+text = "Weapon:"
+
+[connection signal="stat_changed" from="StatSheet" to="." method="_on_stat_changed"]
+[connection signal="item_selected" from="HUD/Control/OptionButton" to="." method="switch_weapon"]
