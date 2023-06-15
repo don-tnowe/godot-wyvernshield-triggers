@@ -60,6 +60,7 @@ var inherit_from : TriggerReaction:
 		_update_name()
 
 ## When this trigger occurs, this reaction responds.
+## The list of triggers is inside the Database object. Click the button in this object's Inspector to edit the database.
 var trigger_id : TriggerType = 0
 
 ## Script with all the functions of the reaction.

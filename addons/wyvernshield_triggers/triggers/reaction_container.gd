@@ -10,7 +10,8 @@ signal remove_timer_expired(path : StringName)
 
 const TimedQueue := preload("res://addons/wyvernshield_triggers/triggers/timed_queue.gd")
 
-## The actor this Trigger Holder is attached to.
+## The actor this Reaction Container is attached to. [br]
+## You can reference objects on this Reaction Container from trigger reaction scripts.
 @export var actor : Node
 
 ## Reactions to add on ready.
@@ -93,10 +94,11 @@ func remove_reaction(reaction_id : StringName, trigger_id : TriggerReaction.Trig
 	var arr := _trigger_reactions[trigger_id]
 	for i in arr.size():
 		if arr[i].reaction_id == reaction_id:
+			var found : TriggerReaction = arr[i]
 			arr.remove_at(i)
-			arr[i]._detached(self)
+			found._detached(self)
 			_reaction_locations.erase(reaction_id)
-			return arr[i]
+			return found
 
 	return null
 
@@ -104,10 +106,10 @@ func remove_reaction(reaction_id : StringName, trigger_id : TriggerReaction.Trig
 ## Use this just before or after adding a reaction at that path to make it active only temporarily.
 ## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
 func remove_reaction_timed(reaction_id : StringName, time : float):
-	if _timed_queue.get_count() == 0:
+	remove_timer_added.emit(reaction_id, time, _timed_queue.add(reaction_id, time))
+	if _timed_queue.get_count() == 1:
 		_update_process_callback()
 
-	remove_timer_added.emit(reaction_id, time, _timed_queue.add(reaction_id, time))
 
 ## Changes the clear time of a path that was set to be cleared by [method clear_timed], in seconds.
 ## If set to [code]0[/code], expires immediately.

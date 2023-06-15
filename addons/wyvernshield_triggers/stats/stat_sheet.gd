@@ -138,10 +138,9 @@ func clear(path : StringName = &".", recursive : bool = true, _current_recursion
 ## Use this just before or after setting stats at that path to set these stats only temporarily.
 ## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
 func clear_timed(path : StringName, time : float):
-	if _timed_queue.get_count() == 0:
-		_update_process_callback()
-
 	clear_timer_added.emit(path, time, _timed_queue.add(path, time))
+	if _timed_queue.get_count() == 1:
+		_update_process_callback()
 
 ## Changes the clear time of a path that was set to be cleared by [method clear_timed], in seconds.
 ## If set to [code]0[/code], expires immediately.
