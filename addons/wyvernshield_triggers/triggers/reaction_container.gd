@@ -1,4 +1,3 @@
-@tool
 class_name TriggerReactionContainer
 extends Node
 
@@ -19,9 +18,8 @@ const TimedQueue := preload("res://addons/wyvernshield_triggers/triggers/timed_q
 @export var initial_reactions : Array[TriggerReaction]:
 	set(v):
 		initial_reactions = v
-		for i in v.size():
-			if v[i] == null:
-				v[i] = TriggerReaction.new()
+		if Engine.is_editor_hint(): return
+		add_reactions(v)
 
 ## The process function that updates the timer for [method remove_reaction_timed].
 @export_enum("Physics", "Idle", "Off") var process_callback : int = 0:

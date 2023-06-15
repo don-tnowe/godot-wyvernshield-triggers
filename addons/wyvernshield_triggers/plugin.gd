@@ -12,6 +12,7 @@ func _enter_tree():
 	add_custom_type("TriggerReaction", "Resource", load("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd"), null)
 	for x in inspector_plugins:
 		add_inspector_plugin(x)
+		x.plugin = self
 
 
 func _exit_tree():
