@@ -101,7 +101,7 @@ func _unhandled_input(event):
 			if event.keycode == KEY_SPACE:
 				use_move(0)
 
-			if event.keycode >= KEY_1 && event.keycode <= KEY_1 + available_moves.size():
+			if event.keycode >= KEY_1 && event.keycode < KEY_1 + available_moves.size() - 1:
 				use_move(event.keycode - KEY_1 + 1)
 
 

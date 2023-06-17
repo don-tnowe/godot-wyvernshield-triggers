@@ -65,7 +65,7 @@ reactions = Array[ExtResource("6_q42py")]([])
 stats = SubResource("Resource_4g3r7")
 
 [sub_resource type="Resource" id="Resource_725pq"]
-resource_name = "Double Projectile Chance (OVERRIDE)"
+resource_name = "Double Projectile Chance (OVERRIDE) (SUB)"
 script = ExtResource("6_q42py")
 reaction_id = &"double_projectile_chance"
 params = [0.25, 10.0]
