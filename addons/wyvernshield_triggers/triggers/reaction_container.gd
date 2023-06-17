@@ -45,6 +45,7 @@ const TimedQueue := preload("res://addons/wyvernshield_triggers/triggers/timed_q
 var _trigger_reactions : Array[Array] = []
 var _timed_queue : TimedQueue
 var _reaction_locations : Dictionary
+var _timer_conflict := -1
 
 
 func _init():
@@ -54,6 +55,7 @@ func _init():
 
 	_timed_queue = TimedQueue.new()
 	_timed_queue.expired.connect(_on_timer_expired)
+	_timed_queue.add_conflict.connect(_on_timer_add_conflict)
 	_update_process_callback()
 
 ## Adds a reaction.
@@ -106,7 +108,17 @@ func remove_reaction(reaction_id : StringName, trigger_id : TriggerReaction.Trig
 ## Use this just before or after adding a reaction at that path to make it active only temporarily.
 ## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
 func remove_reaction_timed(reaction_id : StringName, time : float):
-	remove_timer_added.emit(reaction_id, time, _timed_queue.add(reaction_id, time))
+	_timer_conflict = -1
+	var new_index := _timed_queue.add(reaction_id, time)
+	if new_index == -1:
+		return
+
+	if _timer_conflict != -1:
+		# [method _on_timer_add_conflict] has triggered.
+		remove_timer_changed.emit(reaction_id, time, new_index)
+		return
+
+	remove_timer_added.emit(reaction_id, time, new_index)
 	if _timed_queue.get_count() == 1:
 		_update_process_callback()
 
@@ -253,3 +265,7 @@ func _on_timer_expired(key : StringName):
 
 	remove_reaction(key)
 	remove_timer_expired.emit(key)
+
+
+func _on_timer_add_conflict(removed_key : StringName, removed_index : int):
+	_timer_conflict = removed_index

@@ -45,6 +45,7 @@ var _path_stats := {}
 var _precalculated_stats_of := {}
 var _toplevel_stats := {}
 var _timed_queue : TimedQueue
+var _timer_conflict := -1
 var _locks := 0
 
 
@@ -52,6 +53,7 @@ func _init():
 	_create_path(&".")
 	_timed_queue = TimedQueue.new()
 	_timed_queue.expired.connect(_on_timer_expired)
+	_timed_queue.add_conflict.connect(_on_timer_add_conflict)
 	_update_process_callback()
 
 
@@ -138,7 +140,17 @@ func clear(path : StringName = &".", recursive : bool = true, _current_recursion
 ## Use this just before or after setting stats at that path to set these stats only temporarily.
 ## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
 func clear_timed(path : StringName, time : float):
-	clear_timer_added.emit(path, time, _timed_queue.add(path, time))
+	_timer_conflict = -1
+	var new_index := _timed_queue.add(path, time)
+	if new_index == -1:
+		return
+
+	if _timer_conflict != -1:
+		# [method _on_timer_add_conflict] has triggered.
+		clear_timer_changed.emit(path, time, new_index)
+		return
+
+	clear_timer_added.emit(path, time, new_index)
 	if _timed_queue.get_count() == 1:
 		_update_process_callback()
 
@@ -269,3 +281,7 @@ func _on_timer_expired(key : StringName):
 
 	clear(key)
 	clear_timer_expired.emit(key)
+
+
+func _on_timer_add_conflict(removed_key : StringName, removed_index : int):
+	_timer_conflict = removed_index

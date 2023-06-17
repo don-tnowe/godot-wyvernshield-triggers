@@ -1,7 +1,9 @@
 extends RefCounted
 
-## Emitted when a timer added by [method append] expires.
+## Emitted when a timer added by [method add] expires.
 signal expired(key : StringName)
+## Emitted when [method add] tries to add a timer and a duplicate must be removed.
+signal add_conflict(removed_key : StringName, removed_index : int)
 
 var _keys : Array[StringName] = []
 var _expire_times : Array[float] = []
@@ -15,17 +17,37 @@ func process(delta : float):
 	_process_expiries()
 
 ## Inserts a key. After the given time, emits [signal expired].
-## Returns the new index in the queue, where [code]0[/code] will expire latest.
+## If a duplicate key found:
+## - if found timer expires earlier, the found timer is removed and this emits [signal add_conflict].
+## - if found timer expires later, queue doesn't change and [code]-1[/code] is returned.
+## On success, returns the new index in the queue, where [code]0[/code] will expire latest.
 func add(key : StringName, time : float) -> int:
 	if _expire_times.size() == 0:
 		_total_time_passed = 0.0
 
 	var insert_index := _expire_times.size() - 1
 	var expire_time := time + _total_time_passed
+	var insert_found := false
 	while insert_index >= 0:
+		if insert_found:
+			if _keys[insert_index] == key:
+				return -1
+
+			continue
+
+		if _keys[insert_index] == key:
+			# Found a key that will expire before this one.
+			_keys.remove_at(insert_index)
+			_expire_times.remove_at(insert_index)
+			add_conflict.emit(key, insert_index)
+			insert_index -= 1
+			if _keys.size() == 0:
+				break
+
 		if _expire_times[insert_index] > expire_time:
 			insert_index += 1
-			break
+			insert_found = true
+			continue
 
 		insert_index -= 1
 
@@ -65,20 +87,20 @@ func _process_expiries():
 		return
 
 	var timer_last := _expire_times.size() - 1
-	var path : StringName
+	var expired_key : StringName
 	var time : float
 	while timer_last >= 0:
 		time = _expire_times[timer_last]
 		if time > _total_time_passed:
 			break
 
-		path = _keys.pop_back()
+		expired_key = _keys.pop_back()
 		_expire_times.pop_back()
-		expired.emit(path)
+		expired.emit(expired_key)
 		timer_last -= 1
 
 		_search_last_index = 0
-  
+
 	_next_expire_time = time
 
 
