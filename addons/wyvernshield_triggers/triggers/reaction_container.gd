@@ -66,7 +66,10 @@ func add_reaction(reaction : TriggerReaction):
 	var inserted_at := -1
 	var reaction_array := _trigger_reactions[reaction.trigger_id]
 	for i in reaction_array.size():
-		if inserted_at == -1 && reaction_array[i].priority >= reaction.priority:
+		if reaction.reaction_id == reaction_array[i].reaction_id:
+			return
+
+		if inserted_at == -1 && reaction_array[i].priority <= reaction.priority:
 			inserted_at = i
 
 	if inserted_at == -1:
