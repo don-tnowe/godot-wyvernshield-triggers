@@ -6,6 +6,6 @@ extends CharacterBody3D
 @export var stats : StatSheet
 
 
-func damage(by : CharacterBody3D, by_ability : Node, amount : float) -> TriggerReactionContainer.HitReceivedResult:
+func damage(by : CharacterBody3D, by_ability : CombatMove, amount : float) -> TriggerReactionContainer.HitReceivedResult:
 	var result := reactions.hit_received(by, by_ability, amount)
 	return result

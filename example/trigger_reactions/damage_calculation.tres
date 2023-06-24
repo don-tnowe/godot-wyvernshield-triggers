@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TriggerReaction" load_steps=3 format=3 uid="uid://cjh3jmtbnw02h"]
+
+[ext_resource type="Script" path="res://example/trigger_reactions/reactions.gd" id="2_ops7x"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="3_y67c1"]
+
+[resource]
+resource_name = "Damage Calculation"
+script = ExtResource("3_y67c1")
+reaction_id = &"damage_calculation"
+params = []
+priority = 1000
+expires_in = 0.0
+trigger_id = 4
+reaction_script = ExtResource("2_ops7x")
+func_applied = &"damage_calculation"
+func_attached = &""
+func_detached = &""

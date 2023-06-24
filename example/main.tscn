@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://b377qg486s2qy" path="res://example/graphics/environment/brick.png" id="1_lyust"]
 [ext_resource type="PackedScene" uid="uid://dhtc1iowcn3o6" path="res://example/scenes/hero.tscn" id="2_jdlns"]
-[ext_resource type="PackedScene" uid="uid://dbp356mq1qdvj" path="res://example/scenes/combat_npc.tscn" id="3_cmvai"]
+[ext_resource type="PackedScene" uid="uid://darlgo4gn52e0" path="res://example/scenes/combat_npc.tscn" id="3_cmvai"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_a11h0"]
 size = Vector3(12, 2, 12)

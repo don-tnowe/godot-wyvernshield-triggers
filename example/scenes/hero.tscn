@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://dhtc1iowcn3o6"]
+[gd_scene load_steps=44 format=3 uid="uid://dhtc1iowcn3o6"]
 
 [ext_resource type="Script" path="res://example/scenes/hero.gd" id="1_7me18"]
 [ext_resource type="Texture2D" uid="uid://cv5xfk7vayh5j" path="res://example/graphics/characters/hero.png" id="1_cjwhw"]
@@ -8,17 +8,60 @@
 [ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="4_ckoyp"]
 [ext_resource type="Script" path="res://example/resource_scripts/equipment_item.gd" id="5_5omta"]
 [ext_resource type="Resource" uid="uid://dhmi7wxkd8iq8" path="res://example/trigger_reactions/double_projectile_chance.tres" id="5_m7016"]
-[ext_resource type="Resource" uid="uid://c3yexumyjuomg" path="res://example/trigger_reactions/evade_chance.tres" id="6_gjpsw"]
+[ext_resource type="Resource" uid="uid://6dk2hxw3u8md" path="res://example/trigger_reactions/chain_hits_on_self.tres" id="5_vwnxe"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="6_q42py"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="7_kc2b5"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_modification.gd" id="8_1amqb"]
 [ext_resource type="Script" path="res://example/scenes/status_effect_view.gd" id="10_d66xx"]
+[ext_resource type="Resource" uid="uid://cjh3jmtbnw02h" path="res://example/trigger_reactions/damage_calculation.tres" id="10_s8iw0"]
 
 [sub_resource type="Resource" id="Resource_rnn4u"]
 resource_name = "Basic Shot"
 script = ExtResource("2_pxbg6")
 scenes = Array[PackedScene]([ExtResource("2_32puw")])
-reactions = Array[ExtResource("6_q42py")]([])
+manacost = 0.0
+damage_multiplier = 1.0
+attack_status_reactions = Array[ExtResource("6_q42py")]([])
+user_reactions = Array[ExtResource("6_q42py")]([])
+
+[sub_resource type="Resource" id="Resource_o8h6y"]
+resource_name = "./status/frailty_shard (1) (3.00s)"
+script = ExtResource("8_1amqb")
+at_path = &"status/frailty_shard"
+magnitude = 1.0
+expires_in = 3.0
+stat_count = 1
+stat_0/stat = &"defense"
+stat_0/value = 0.25
+stat_0/type = 3
+
+[sub_resource type="Resource" id="Resource_mjfy1"]
+resource_name = "Frailty Shard"
+script = ExtResource("2_pxbg6")
+scenes = Array[PackedScene]([ExtResource("2_32puw")])
+manacost = 4.0
+damage_multiplier = 2.0
+attack_status_reactions = Array[ExtResource("6_q42py")]([])
+attack_status_stats = SubResource("Resource_o8h6y")
+user_reactions = Array[ExtResource("6_q42py")]([])
+
+[sub_resource type="Resource" id="Resource_tu3ow"]
+resource_name = "Chain Hits On Self (5.00s)"
+script = ExtResource("6_q42py")
+reaction_id = &"chain_hits_on_self"
+params = [0.5, 8.0]
+priority = -100
+expires_in = 5.0
+inherit_from = ExtResource("5_vwnxe")
+
+[sub_resource type="Resource" id="Resource_aheha"]
+resource_name = "Electrify Bolt"
+script = ExtResource("2_pxbg6")
+scenes = Array[PackedScene]([ExtResource("2_32puw")])
+manacost = 6.0
+damage_multiplier = 2.0
+attack_status_reactions = Array[ExtResource("6_q42py")]([SubResource("Resource_tu3ow")])
+user_reactions = Array[ExtResource("6_q42py")]([])
 
 [sub_resource type="Resource" id="Resource_c8elq"]
 resource_name = "./status/sharpshooter (3) (5.00s)"
@@ -41,8 +84,11 @@ stat_2/type = 3
 resource_name = "Sharpshooter"
 script = ExtResource("2_pxbg6")
 scenes = Array[PackedScene]([])
-reactions = Array[ExtResource("6_q42py")]([])
-stats = SubResource("Resource_c8elq")
+manacost = 0.0
+damage_multiplier = 1.0
+attack_status_reactions = Array[ExtResource("6_q42py")]([])
+user_reactions = Array[ExtResource("6_q42py")]([])
+user_stats = SubResource("Resource_c8elq")
 
 [sub_resource type="Resource" id="Resource_4g3r7"]
 resource_name = "./equip/weapon (2)"
@@ -65,7 +111,7 @@ reactions = Array[ExtResource("6_q42py")]([])
 stats = SubResource("Resource_4g3r7")
 
 [sub_resource type="Resource" id="Resource_725pq"]
-resource_name = "Double Projectile Chance (OVERRIDE) (SUB)"
+resource_name = "Double Projectile Chance"
 script = ExtResource("6_q42py")
 reaction_id = &"double_projectile_chance"
 params = [0.25, 10.0]
@@ -94,18 +140,27 @@ reactions = Array[ExtResource("6_q42py")]([SubResource("Resource_725pq")])
 stats = SubResource("Resource_r881i")
 
 [sub_resource type="Resource" id="Resource_6hu62"]
-resource_name = "./init (2)"
+resource_name = "./init (5)"
 script = ExtResource("8_1amqb")
 at_path = &"init"
 magnitude = 1.0
 expires_in = 0.0
-stat_count = 2
+stat_count = 5
 stat_0/stat = &"max_hp"
-stat_0/value = 0.0
+stat_0/value = 20.0
 stat_0/type = 0
-stat_1/stat = &"movement_speed"
-stat_1/value = 4.0
+stat_1/stat = &"max_mana"
+stat_1/value = 20.0
 stat_1/type = 0
+stat_2/stat = &"movement_speed"
+stat_2/value = 4.0
+stat_2/type = 0
+stat_3/stat = &"defense"
+stat_3/value = 1.0
+stat_3/type = 0
+stat_4/stat = &"dodge_chance"
+stat_4/value = 20.0
+stat_4/type = 0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_mxlvs"]
 height = 0.446696
@@ -256,10 +311,11 @@ region = Rect2(32, 0, 64, 64)
 margin = Rect2(32, 0, 0, 0)
 filter_clip = true
 
-[node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("anim", "reactions", "stats")]
+[node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("cam", "anim", "reactions", "stats")]
 script = ExtResource("1_7me18")
-available_moves = Array[ExtResource("2_pxbg6")]([SubResource("Resource_rnn4u"), SubResource("Resource_1pnob")])
+available_moves = Array[ExtResource("2_pxbg6")]([SubResource("Resource_rnn4u"), SubResource("Resource_mjfy1"), SubResource("Resource_aheha"), SubResource("Resource_1pnob")])
 available_weapons = Array[ExtResource("5_5omta")]([SubResource("Resource_ruwgc"), SubResource("Resource_ffyvc")])
+cam = NodePath("Camera3D")
 anim = NodePath("Anim")
 move_maxspeed = 4.0
 move_accel = 16.0
@@ -270,7 +326,7 @@ stats = NodePath("StatSheet")
 [node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "stats", "anim_list", "ui", "shape")]
 script = ExtResource("2_hh3hf")
 actor = NodePath("..")
-initial_reactions = Array[ExtResource("6_q42py")]([ExtResource("4_ckoyp"), ExtResource("6_gjpsw")])
+initial_reactions = Array[ExtResource("6_q42py")]([ExtResource("4_ckoyp"), ExtResource("10_s8iw0")])
 actor_visual = NodePath("../Visual/Flip/Sprite3D")
 stats = NodePath("../StatSheet")
 anim_list = NodePath("../Anim")
@@ -403,24 +459,30 @@ Statues slow on touch"
 
 [node name="Label3" type="Label" parent="HUD/Control"]
 layout_mode = 0
-offset_left = -559.0
-offset_top = -187.0
-offset_right = -75.0
-offset_bottom = -57.0
+offset_left = -560.0
+offset_top = -194.0
+offset_right = -76.0
+offset_bottom = -116.0
 theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
 text = "[ ARROWS ] - Move
-[ Space ] - Attack
-- Depends on weapon (see menu to the right)
-[ 1 ] - Buff (x0.5 speed, x1.5 projectile speed, x1.25 damage)
-- Can be applied several times BUT effects from same path don't stack."
+[ Left-click ] - Attack (depends on Weapon)
+"
 autowrap_mode = 2
 
-[node name="OptionButton" type="OptionButton" parent="HUD/Control"]
+[node name="EquipChooser" type="HBoxContainer" parent="HUD/Control"]
 layout_mode = 0
-offset_left = 197.0
-offset_top = -163.0
-offset_right = 414.0
-offset_bottom = -114.0
+offset_left = -558.0
+offset_top = -142.0
+offset_right = -142.0
+offset_bottom = -111.0
+
+[node name="Label4" type="Label" parent="HUD/Control/EquipChooser"]
+layout_mode = 2
+text = "Weapon:"
+
+[node name="OptionButton" type="OptionButton" parent="HUD/Control/EquipChooser"]
+layout_mode = 2
+size_flags_horizontal = 3
 focus_mode = 0
 item_count = 2
 selected = 0
@@ -429,13 +491,65 @@ popup/item_0/id = 0
 popup/item_1/text = "Double"
 popup/item_1/id = 1
 
-[node name="Label4" type="Label" parent="HUD/Control"]
-layout_mode = 0
-offset_left = 106.0
-offset_top = -150.0
-offset_right = 174.0
-offset_bottom = -124.0
-text = "Weapon:"
+[node name="GridContainer" type="VBoxContainer" parent="HUD/Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -558.0
+offset_top = -104.0
+offset_right = -39.0
+offset_bottom = -18.0
+grow_vertical = 0
+scale = Vector2(0.75, 0.75)
+
+[node name="Label3" type="Label" parent="HUD/Control/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "[ Right-click ] - Frailty Shards (200% damage, reduces target's defense)"
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label3"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.619608, 0.286275, 1, 0.498039)
+
+[node name="Label" type="Label" parent="HUD/Control/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "[ 1 ] - Electrify Bolt (200% damage, hits on target chain to nearest enemy)"
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.286275, 0.576471, 1, 0.498039)
+
+[node name="Label2" type="Label" parent="HUD/Control/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "[ 2 ] - Sharpshooter (x0.5 move speed, x1.5 projectile speed, x1.25 damage)"
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label2"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.207843, 0.764706, 0.192157, 0.498039)
 
 [connection signal="stat_changed" from="StatSheet" to="." method="_on_stat_changed"]
-[connection signal="item_selected" from="HUD/Control/OptionButton" to="." method="switch_weapon"]
+[connection signal="item_selected" from="HUD/Control/EquipChooser/OptionButton" to="." method="switch_weapon"]

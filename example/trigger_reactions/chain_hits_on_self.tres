@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TriggerReaction" load_steps=3 format=3 uid="uid://6dk2hxw3u8md"]
+
+[ext_resource type="Script" path="res://example/trigger_reactions/reactions.gd" id="1_kek5a"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="2_6mmr1"]
+
+[resource]
+resource_name = "Chain Hits On Self"
+script = ExtResource("2_6mmr1")
+reaction_id = &"chain_hits_on_self"
+params = [0.5, 8.0]
+priority = -100
+expires_in = 0.0
+trigger_id = 4
+reaction_script = ExtResource("1_kek5a")
+func_applied = &"chain_hits_on_self"
+func_attached = &""
+func_detached = &""

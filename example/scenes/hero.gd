@@ -2,6 +2,7 @@ extends CombatActor
 
 @export var available_moves : Array[CombatMove]
 @export var available_weapons : Array[EquipmentItem]
+@export var cam : Camera3D
 @export var anim : AnimationPlayer
 
 @export_group("Parameters")
@@ -11,6 +12,7 @@ extends CombatActor
 
 var current_weapon : EquipmentItem
 var last_input_direction := Vector3.FORWARD
+var last_shoot_direction := Vector3.FORWARD
 
 
 func _ready():
@@ -48,10 +50,18 @@ func use_move(index : int):
 
 	# First, apply the move's reactions and triggers.
 	# This example only covers personal buffs.
-	reactions.add_reactions(move.reactions)
-	if move.stats != null:
-		move.stats.apply(stats)
+	reactions.add_reactions(move.user_reactions)
+	if move.user_stats != null:
+		move.user_stats.apply(stats)
 
+	var mouse_pos := get_viewport().get_mouse_position()
+	var mouse_hit : Vector3 = get_world_3d().direct_space_state.intersect_ray(
+		PhysicsRayQueryParameters3D.create(
+			cam.project_ray_origin(mouse_pos),
+			cam.project_ray_normal(mouse_pos) * 1000.0,
+		)).get(&"position", position + last_shoot_direction)
+	var shoot_direction := position.direction_to(Vector3(mouse_hit.x, position.y, mouse_hit.z))
+	last_shoot_direction = shoot_direction
 	for x in move.scenes:
 		# Spawn the projectile.
 		var scene_instance := x.instantiate()
@@ -60,7 +70,8 @@ func use_move(index : int):
 		if scene_instance.has_method(&"launch"):
 			scene_instance.launch(
 				stats.get_stat(&"weapon_damage"),
-				last_input_direction * stats.get_stat(&"projectile_speed", 8.0),
+				move,
+				shoot_direction * stats.get_stat(&"projectile_speed", 8.0),
 				self
 			)
 
@@ -71,10 +82,10 @@ func use_move(index : int):
 			y.target_hit.connect(_on_target_hit)
 
 	# Don't forget to remove reactions and stats without a timer! They'd stay permanently.
-	if move.stats != null && move.stats.expires_in == 0:
-		move.stats.apply(stats)
+	if move.user_stats != null && move.user_stats.expires_in == 0:
+		stats.clear(move.user_stats.at_path)
 
-	for x in move.reactions:
+	for x in move.user_reactions:
 		if x.expires_in == 0:
 			reactions.remove_reaction(x.reaction_id, x.trigger_id)
 
@@ -96,13 +107,16 @@ func switch_weapon(index : int):
 
 
 func _unhandled_input(event):
+	if event is InputEventMouseButton:
+		if event.pressed:
+			match event.button_index:
+				MOUSE_BUTTON_LEFT: use_move(0)
+				MOUSE_BUTTON_RIGHT: use_move(1)
+
 	if event is InputEventKey:
 		if event.pressed:
-			if event.keycode == KEY_SPACE:
-				use_move(0)
-
-			if event.keycode >= KEY_1 && event.keycode < KEY_1 + available_moves.size() - 1:
-				use_move(event.keycode - KEY_1 + 1)
+			if event.keycode >= KEY_1 && event.keycode < KEY_1 + available_moves.size() - 2:
+				use_move(event.keycode - KEY_1 + 2)
 
 
 func _on_target_hit(target, damage_result):
