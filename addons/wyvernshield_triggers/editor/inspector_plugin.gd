@@ -45,7 +45,7 @@ func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wi
 func _stylize_db_button(button, container):
 	button.text = "View&Edit Database"
 	button.tooltip_text = "Click to edit database containing the list of triggers and their parameters."
-	button.icon = button.get_theme_icon("Object", "EditorIcons")
+	button.icon = load("res://addons/wyvernshield_triggers/icons/trigger_reaction.svg")
 	button.pressed.connect(_edit_db)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.custom_minimum_size.x = button.get_minimum_size().x + 32

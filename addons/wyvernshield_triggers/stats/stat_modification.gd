@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/wyvernshield_triggers/icons/stat_modification.svg")
 class_name StatModification
 extends Resource
 

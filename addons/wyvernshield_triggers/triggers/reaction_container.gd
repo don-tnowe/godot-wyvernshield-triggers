@@ -1,3 +1,4 @@
+@icon("res://addons/wyvernshield_triggers/icons/reaction_container.svg")
 class_name TriggerReactionContainer
 extends Node
 

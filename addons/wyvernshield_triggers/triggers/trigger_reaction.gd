@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/wyvernshield_triggers/icons/trigger_reaction.svg")
 class_name TriggerReaction
 extends Resource
 
