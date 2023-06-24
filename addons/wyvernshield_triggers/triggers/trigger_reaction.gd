@@ -35,6 +35,7 @@ enum TriggerType
 @export var expires_in := 0.0:
 	set(v):
 		expires_in = max(v, 0)
+		_update_name()
 
 ## Set another reaction to copy its behaviour and override parameters.
 var inherit_from : TriggerReaction:
@@ -205,9 +206,14 @@ func _property_get_revert(property):
 
 
 func _update_name():
-	resource_name = reaction_id.capitalize()
+	var new_name := reaction_id.capitalize()
+	if expires_in > 0:
+		new_name += " (%.2fs)" % [expires_in]
+
 	if inherit_from != null:
-		resource_name += " (OVERRIDE)"
+		new_name += " (OVERRIDE)"
 
 	if resource_path.contains("::"):
-		resource_name += " (SUB)"
+		new_name += " (SUB)"
+
+	resource_name = new_name
