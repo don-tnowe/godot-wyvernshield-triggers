@@ -253,6 +253,15 @@ func apply_stat_derivatives(stat_sheet : StatSheet) -> ApplyStatDerivativesResul
 
 # Auto-generated end
 
+
+func _physics_process(delta):
+	_timed_queue.process(delta)
+
+
+func _process(delta):
+	_timed_queue.process(delta)
+
+
 func _update_process_callback():
 	if _timed_queue.get_count() == 0:
 		set_physics_process(false)
