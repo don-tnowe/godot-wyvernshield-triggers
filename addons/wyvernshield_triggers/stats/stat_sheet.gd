@@ -1,3 +1,4 @@
+@icon("res://addons/wyvernshield_triggers/icons/stat_sheet.svg")
 class_name StatSheet
 extends Node
 
