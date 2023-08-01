@@ -1,3 +1,4 @@
+class_name TimedQueue
 extends RefCounted
 
 ## Emitted when a timer added by [method add] expires.
@@ -80,6 +81,26 @@ func get_time(key : StringName) -> float:
 ## Returns the number of timers running.
 func get_count() -> int:
 	return _expire_times.size()
+
+## Retrieves the array of keys, where the last element expires soonest.
+func get_keys() -> Array[StringName]:
+	# YES I know duplicate() and map() exist, they don't return a typed array. Typed arrays are scuffed rn
+	var result : Array[StringName] = []
+	result.resize(_keys.size())
+	for i in result.size():
+		result[i] = _keys[i]
+
+	return result
+
+
+## Retrieves the array of status effect expire times, in order.
+func get_times() -> Array[float]:
+	var result : Array[float] = []
+	result.resize(_expire_times.size())
+	for i in result.size():
+		result[i] = _expire_times[i]
+
+	return result
 
 
 func _process_expiries():
