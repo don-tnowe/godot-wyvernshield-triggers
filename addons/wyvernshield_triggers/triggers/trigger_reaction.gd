@@ -42,15 +42,16 @@ var inherit_from : TriggerReaction:
 	set(v):
 		inherit_from = v
 		if v != null:
-			reaction_id = v.reaction_id
-			priority = v.priority
-
 			trigger_id = v.trigger_id
 			reaction_script = v.reaction_script
 			func_attached = v.func_attached
 			func_applied = v.func_applied
 			func_detached = v.func_detached
-			if params == null:
+			if reaction_id == &"":
+				reaction_id = v.reaction_id
+				priority = v.priority
+
+			if params == null || params.size() != v.params.size():
 				params = v.params.duplicate()
 
 			params.resize(v.params.size())
