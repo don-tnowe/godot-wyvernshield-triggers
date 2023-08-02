@@ -71,7 +71,7 @@ func set_time(key : StringName, new_time : float) -> int:
 func get_time(key : StringName) -> float:
 	var found_index = _search_key(key)
 	if found_index == -1: return 0.0
-	return _expire_times[found_index]
+	return _expire_times[found_index] - _total_time_passed
 
 ## Returns the number of timers running.
 func get_count() -> int:
