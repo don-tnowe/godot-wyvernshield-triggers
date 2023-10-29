@@ -85,7 +85,7 @@ region_rect = Rect2(0, 0, 1024, 128)
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.122757, 1.61524, 5.09552)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Level/StaticBody3D5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.59653, -1)
 shape = SubResource("BoxShape3D_5r4wy")
 
 [node name="Sprite3D" type="Sprite3D" parent="Level/StaticBody3D5"]

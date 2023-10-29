@@ -30,12 +30,13 @@ func _physics_process(delta):
 	var speed_delta := move_brake
 	if input_vec != Vector2.ZERO:
 		# Changes speed at `move_brake` if pushing against velocity vec, `move_accel` if forwards or sideways
-		speed_delta = lerp(move_brake, move_accel, min(input_vec.dot(velocity_h.normalized()) + 1, 1))
+		speed_delta = move_accel - 0.5 * move_brake * (input_vec.dot(velocity_h.normalized()) - 1.0)
 		last_input_direction = Vector3(input_vec.x, 0, input_vec.y).normalized()
-		anim.play("run")
+		if anim.current_animation != &"run":
+			anim.play(&"run")
 
 	else:
-		anim.play("idle")
+		anim.play(&"idle")
 
 	velocity_h = velocity_h.move_toward(input_vec * move_maxspeed, delta * speed_delta)
 	velocity = Vector3(velocity_h.x, 0, velocity_h.y)
@@ -102,8 +103,7 @@ func switch_weapon(index : int):
 	var new_weapon = available_weapons[index]
 	current_weapon = new_weapon
 	reactions.add_reactions(new_weapon.reactions)
-	if new_weapon.stats != null:
-		new_weapon.stats.apply(stats)
+	stats.set_from_modification(new_weapon.stats)
 
 
 func _unhandled_input(event):
