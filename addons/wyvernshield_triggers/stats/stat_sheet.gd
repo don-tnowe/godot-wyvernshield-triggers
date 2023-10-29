@@ -92,7 +92,7 @@ func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : Str
 func get_stats() -> Dictionary:
 	return _toplevel_stats.duplicate()
 
-## Changes a stat according to the set [enum StatChangeType].
+## Changes a stat according to the set [enum StatModification.Type].
 func set_stat(stat : StringName, value : float, path : StringName = &".", modification_type : StatModification.Type = StatModification.Type.BASE):
 	match modification_type:
 		StatModification.Type.BASE:
@@ -112,21 +112,37 @@ func set_stat(stat : StringName, value : float, path : StringName = &".", modifi
 		StatModification.Type.UPPER_LIMIT:
 			set_upper_limit(stat, value, path)
 
-## Applies a [StatModification]. If [code]null[/code], does not create an exception.
-func set_from_modification(mod : StatModification, magnitude : float = 1.0):
-	if mod != null:
-		mod.apply(self, magnitude)
+## Applies a [StatModification], returning the path it was applied to. If modification is [code]null[/code], returns empty StringName.
+## Returns the path applied to, which may differ if [member StatModification.non_repeat] is set, to then remove it using [method clear]. [br]
+func set_from_modification(mod : StatModification, magnitude : float = 1.0) -> StringName:
+	if mod == null: return &""
+	return mod.apply(self, magnitude)
+
+## Applies a stat modification from a dictionary. See [method set_suffixed].
+func set_from_dict(mods : Dictionary, path : StringName = &".", non_repeat : bool = false) -> StringName:
+	if mods.size() == 0: return &""
+	if non_repeat: path = get_non_repeating_path(path)
+
+	lock()
+	var stat_names : Array = mods.keys()
+	var stat_values : Array = mods.values()
+
+	for i in stat_names.size():
+		set_suffixed(stat_names[i], stat_values[i], path)
+
+	unlock()
+	return path
 
 ## Applies a stat modification, taking a string that is the stat's key with a special character after it.
 ## This allows storage of modifications in form of dictionaries.[br]
 ## To modify a stat called [code]stat[/code], one of these StringNames must be used: [br]
-## - [b]&"stat\+":[/b] [method set_base][br]
-## - [b]&"stat\%":[/b] [method set_percentage][br]
-## - [b]&"stat\$":[/b] [method set_percentage_magnitude][br]
-## - [b]&"stat\*":[/b] [method set_multiplier][br]
-## - [b]&"stat\&":[/b] [method set_flat_bonus][br]
-## - [b]&"stat\^":[/b] [method set_lower_limit][br]
-## - [b]&"stat\_":[/b] [method set_upper_limit][br]
+## - [b]&"stat+":[/b] [method set_base][br]
+## - [b]&"stat%":[/b] [method set_percentage][br]
+## - [b]&"stat$":[/b] [method set_percentage_magnitude][br]
+## - [b]&"stat*":[/b] [method set_multiplier][br]
+## - [b]&"stat&":[/b] [method set_flat_bonus][br]
+## - [b]&"stat^":[/b] [method set_lower_limit][br]
+## - [b]&"stat_":[/b] [method set_upper_limit][br]
 func set_suffixed(stat_suffixed : StringName, value : float = 1.0, path : StringName = &"."):
 	var len := stat_suffixed.length() - 1
 	set_stat(stat_suffixed.left(len), value, path, _modification_suffix[stat_suffixed.unicode_at(len)])
@@ -259,6 +275,13 @@ func get_contributions(stat : StringName) -> Dictionary:
 		]).strip_edges()
 
 	return result
+
+## Returns a path that, when applied, will not overwrite any stat modifications in this sheet.
+func get_non_repeating_path(from_path : StringName) -> StringName:
+	if !_children_of.has(from_path):
+		return StringName("%s/0" % [from_path])
+
+	return StringName("%s/%s" % [from_path, _children_of[from_path].size()])
 
 ## Before changing lots of stats, lock to reduce recalculations.
 func lock():

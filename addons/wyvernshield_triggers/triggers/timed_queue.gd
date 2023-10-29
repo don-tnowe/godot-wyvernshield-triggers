@@ -18,18 +18,18 @@ func process(delta : float):
 	_process_expiries()
 
 ## Inserts a key. After the given time, emits [signal expired].
-## If a duplicate key found:
+## If [code]independent_timers[/code] is [code]false[/code] and a duplicate key found:
 ## - if found timer expires earlier, the found timer is removed and this emits [signal add_conflict].
 ## - if found timer expires later, queue doesn't change and [code]-1[/code] is returned.
 ## On success, returns the new index in the queue, where [code]0[/code] will expire latest.
-func add(key : StringName, time : float) -> int:
+func add(key : StringName, time : float, independent_timers : bool = false) -> int:
 	if _expire_times.size() == 0:
 		_total_time_passed = 0.0
 
 	var insert_index := _expire_times.size() - 1
 	var expire_time := time + _total_time_passed
 	while insert_index >= 0:
-		if _keys[insert_index] == key:
+		if !independent_timers && _keys[insert_index] == key:
 			# Found a key that will expire before this one.
 			_keys.remove_at(insert_index)
 			_expire_times.remove_at(insert_index)

@@ -46,6 +46,7 @@ const TimedQueue := preload("res://addons/wyvernshield_triggers/triggers/timed_q
 var _trigger_reactions : Array[Array] = []
 var _timed_queue : TimedQueue
 var _reaction_locations : Dictionary
+var _reaction_repeats : Dictionary
 var _timer_conflict := -1
 
 
@@ -59,10 +60,13 @@ func _init():
 	_timed_queue.add_conflict.connect(_on_timer_add_conflict)
 	_update_process_callback()
 
-## Adds a reaction.
-## [b]Note:[/b] Multiple reactions with the same [member TriggerReaction.reaction_id] cannot be on the same reaction container.
+## Adds a reaction. [br]
+## [b]Note:[/b] Adding multiple reactions on the same [member TriggerReaction.reaction_id] does not apply the effects multiple times - for stackable numbers, use [StatSheet] and [StatModification].
 func add_reaction(reaction : TriggerReaction):
-	if _reaction_locations.has(reaction): return
+	if _reaction_locations.has(reaction):
+		_reaction_repeats[reaction.reaction_id] += 1
+		return
+
 	var inserted_at := -1
 	var reaction_array := _trigger_reactions[reaction.trigger_id]
 	for i in reaction_array.size():
@@ -77,21 +81,23 @@ func add_reaction(reaction : TriggerReaction):
 
 	reaction_array.insert(inserted_at, reaction)
 	_reaction_locations[reaction.reaction_id] = reaction.trigger_id
+	_reaction_repeats[reaction.reaction_id] = 1
 	reaction._attached(self)
 	if reaction.expires_in != 0.0:
 		remove_reaction_timed(reaction.reaction_id, reaction.expires_in)
 
-## Adds several reactions.
+## Adds several reactions. [br]
 ## [b]Note:[/b] Multiple reactions with the same [member TriggerReaction.reaction_id] cannot be on the same reaction container.
 func add_reactions(reactions : Array):
 	for x in reactions:
 		# Change back if `add_reaction` gets heavy logic at its end.
 		add_reaction(x)
 
-## Detaches the reaction with the specified reaction ID.
-## Returns the removed reaction, or [code]null[/code] if not found.
+## Detaches the reaction with the specified reaction ID. [br]
+## Returns the removed reaction, or [code]null[/code] if found none or multiple.
 func remove_reaction(reaction_id : StringName, trigger_id : TriggerReaction.TriggerType = -1) -> TriggerReaction:
 	if !_reaction_locations.has(reaction_id):
+		_reaction_repeats[reaction_id] -= 1
 		return null
 
 	if trigger_id == -1:
@@ -108,12 +114,11 @@ func remove_reaction(reaction_id : StringName, trigger_id : TriggerReaction.Trig
 
 	return null
 
-## Detaches a reaction after a timer passes. Time is set in seconds.
-## Use this just before or after adding a reaction at that path to make it active only temporarily.
-## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
-func remove_reaction_timed(reaction_id : StringName, time : float):
+## Detaches a reaction after a timer passes. Time is set in seconds. [br]
+## Use this just before or after adding a reaction at that path to make it active only temporarily. [br]
+func remove_reaction_timed(reaction_id : StringName, time : float, independent_timers : bool = true):
 	_timer_conflict = -1
-	var new_index := _timed_queue.add(reaction_id, time)
+	var new_index := _timed_queue.add(reaction_id, time, independent_timers)
 	if new_index == -1:
 		return
 

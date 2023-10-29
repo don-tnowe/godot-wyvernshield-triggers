@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="3_4o85h"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="3_snb4m"]
 [ext_resource type="Resource" uid="uid://cjh3jmtbnw02h" path="res://example/trigger_reactions/damage_calculation.tres" id="4_4deys"]
-[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="5_xn1dy"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="5_b6aqx"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_modification.gd" id="6_g0qcg"]
 [ext_resource type="Script" path="res://example/scenes/status_effect_view.gd" id="7_77k41"]
 
@@ -15,6 +15,7 @@ script = ExtResource("6_g0qcg")
 at_path = &"init"
 magnitude = 1.0
 expires_in = 0.0
+non_repeat = false
 stat_count = 5
 stat_0/stat = &"max_hp"
 stat_0/value = 80.0
@@ -120,7 +121,7 @@ anim_list = NodePath("../Anim")
 shape = NodePath("../CombatArea/Shape")
 
 [node name="StatSheet" type="Node" parent="."]
-script = ExtResource("5_xn1dy")
+script = ExtResource("5_b6aqx")
 initial_stats = Array[ExtResource("6_g0qcg")]([SubResource("Resource_clne5")])
 
 [node name="StatusEffectView" type="Label3D" parent="." node_paths=PackedStringArray("reactions", "stats")]
@@ -152,7 +153,7 @@ hframes = 2
 vframes = 2
 
 [node name="Anim" type="AnimationPlayer" parent="."]
-autoplay = "init"
 libraries = {
 "": SubResource("AnimationLibrary_0m301")
 }
+autoplay = "init"
