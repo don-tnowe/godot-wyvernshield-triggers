@@ -9,6 +9,10 @@ enum Type {
 	PERCENT_CHANGE, ## Percent increase/decrease, added together to then modify base.
 	PERCENT_MAGNITUDE, ## Multiplier of percent changes, MULTIPLIED together.
 	MULTIPLIER, ## Multiplier of total value, MULTIPLIED together.
+	FLAT_BONUS, ## Flat bonus, added to the value [b]after[/b] all multipliers.
+	_5, ## Currently unused. If you have ideas, open an issue on https://github.com/don-tnowe/godot-wyvernshield-triggers/issues
+	LOWER_LIMIT, ## Lower limit of the resulting value. The highest modification will be applied.
+	UPPER_LIMIT, ## Upper limit of the resulting value. The lowest modification will be applied.
 	MAX ## The size of the enumeration.
 }
 

@@ -2,6 +2,14 @@
 class_name StatSheet
 extends Node
 
+## A node that holds stats, input as various modifications and output. [br]
+##
+## Modify stats via [method set_stat], [method set_from_modification], [method set_suffixed] or other [code]set_*[/code] methods. Retrieve them using [method get_stat].[br]
+## [br]
+## Most setter methods have a [code]path[/code] parameter - modifications at different paths stack together, applying the same stat and type to the same path overwrites the value. [br]
+## Paths can be imagined as folders of files - use "/" to divide units, like [code]equip/helmet[/code] or [code]meta/skilltree/warrior/vital_might[/code]. When a modification occurs at a path, stats under all paths above get recalculated, so that rarely-changed paths don't get fully recalculated every time. [br]
+## For stacking rules, check [enum StatModification.Type].[br]
+
 ## Emitted when stat gets changed through any means.
 signal stat_changed(stat : StringName, new_value : float, old_value : float)
 
@@ -12,15 +20,27 @@ signal clear_timer_changed(path : StringName, time_seconds : float, new_index_in
 ## Emitted when a timer set by [method clear_timed] expires.
 signal clear_timer_expired(path : StringName)
 
+const _modification_suffix := {
+	43 : StatModification.Type.BASE, ## Base stat, added together before other calculations.
+	37 : StatModification.Type.PERCENT_CHANGE, ## Percent increase/decrease, added together to then modify base.
+	36 : StatModification.Type.PERCENT_MAGNITUDE, ## Multiplier of percent changes, MULTIPLIED together.
+	42 : StatModification.Type.MULTIPLIER, ## Multiplier of total value, MULTIPLIED together.
+	38 : StatModification.Type.FLAT_BONUS, ## Flat bonus, added to the value [b]after[/b] all multipliers.
+	39 : StatModification.Type._5,
+	94 : StatModification.Type.LOWER_LIMIT, ## Lower limit of the resulting value. The highest modification will be applied.
+	95 : StatModification.Type.UPPER_LIMIT, ## Upper limit of the resulting value. The lowest modification will be applied.
+}
+
 const _stat_default := Projection(
 	Vector4(0, 0, 1, 1),
-	Vector4.ZERO,
+	Vector4(0, 0, -3.4028235e38, 3.4028235e38),
+	# Vector4(0, 0, -1, 1),
 	Vector4.ZERO,
 	Vector4.ZERO,
 )
 
 ## [StatModification]s to apply at start. [br]
-## To add more at runtime, call [method StatModification.apply]. [br]
+## To add more at runtime, call [method set_from_modification] or the modification's [method StatModification.apply]. [br]
 ## To set a specific stat, call one of the [code]set_[/code] methods.
 @export var initial_stats : Array[StatModification]:
 	set(v):
@@ -60,8 +80,12 @@ func _ready():
 	# IDK why I need to do this, but I do.
 	_update_process_callback()
 
-## Retrieves a stat's value from all paths.
+## Retrieves a stat's value, calculated from all paths.
 func get_stat(stat : StringName, default_value : float = 0.0) -> float:
+	return _toplevel_stats.get(stat, default_value)
+
+## Retrieves a stat's value from a specific path.
+func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : StringName = &".") -> float:
 	return _toplevel_stats.get(stat, default_value)
 
 ## Retrieves all stats from all paths.
@@ -79,10 +103,33 @@ func set_stat(stat : StringName, value : float, path : StringName = &".", modifi
 			set_percentage_magnitude(stat, value, path)
 		StatModification.Type.MULTIPLIER:
 			set_multiplier(stat, value, path)
+		StatModification.Type.FLAT_BONUS:
+			set_flat_bonus(stat, value, path)
+		StatModification.Type._5:
+			set_idk(stat, value, path)
+		StatModification.Type.LOWER_LIMIT:
+			set_lower_limit(stat, value, path)
+		StatModification.Type.UPPER_LIMIT:
+			set_upper_limit(stat, value, path)
 
-## Applies a [StatModification].
+## Applies a [StatModification]. If [code]null[/code], does not create an exception.
 func set_from_modification(mod : StatModification, magnitude : float = 1.0):
-	mod.apply(self, magnitude)
+	if mod != null:
+		mod.apply(self, magnitude)
+
+## Applies a stat modification, taking a string that is the stat's key with a special character after it.
+## This allows storage of modifications in form of dictionaries.[br]
+## To modify a stat called [code]stat[/code], one of these StringNames must be used: [br]
+## - [b]&"stat\+":[/b] [method set_base][br]
+## - [b]&"stat\%":[/b] [method set_percentage][br]
+## - [b]&"stat\$":[/b] [method set_percentage_magnitude][br]
+## - [b]&"stat\*":[/b] [method set_multiplier][br]
+## - [b]&"stat\&":[/b] [method set_flat_bonus][br]
+## - [b]&"stat\^":[/b] [method set_lower_limit][br]
+## - [b]&"stat\_":[/b] [method set_upper_limit][br]
+func set_suffixed(stat_suffixed : StringName, value : float = 1.0, path : StringName = &"."):
+	var len := stat_suffixed.length() - 1
+	set_stat(stat_suffixed.left(len), value, path, _modification_suffix[stat_suffixed.unicode_at(len)])
 
 ## Sets the base value of a stat.
 ## Base values are added together.
@@ -118,6 +165,39 @@ func set_multiplier(stat : StringName, value : float, path : StringName = &"."):
 	_create_path(path)
 	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
 	stat_matrix.x.w = value
+	_path_stats[path][stat] = stat_matrix
+	_recalculate_upwards(path)
+
+## Sets the flat bonus increase of a stat.
+## Similar to [method set_base], but multipliers like [method set_percentage] and [method set_multiplier] don't apply.
+func set_flat_bonus(stat : StringName, value : float, path : StringName = &"."):
+	_create_path(path)
+	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
+	stat_matrix.y.x = value
+	_path_stats[path][stat] = stat_matrix
+	_recalculate_upwards(path)
+
+
+func set_idk(stat : StringName, value : float, path : StringName = &"."):
+	_create_path(path)
+	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
+	stat_matrix.y.y = value
+	_path_stats[path][stat] = stat_matrix
+	_recalculate_upwards(path)
+
+## Sets the lower limit of a stat - its value won't go below that.
+func set_lower_limit(stat : StringName, value : float, path : StringName = &"."):
+	_create_path(path)
+	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
+	stat_matrix.y.z = value
+	_path_stats[path][stat] = stat_matrix
+	_recalculate_upwards(path)
+
+## Sets the upper limit of a stat - its value won't go above that.
+func set_upper_limit(stat : StringName, value : float, path : StringName = &"."):
+	_create_path(path)
+	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
+	stat_matrix.y.w = value
 	_path_stats[path][stat] = stat_matrix
 	_recalculate_upwards(path)
 
@@ -240,7 +320,7 @@ func _recalculate_upwards(path : StringName):
 		for k in result:
 			var v : Projection = result[k]
 			var old_stat : float = toplevel_stats_old.get(k, 0.0)
-			var new_stat : float = v.x.x * (v.x.y * 0.01 * v.x.z + 1.0) * (v.x.w)
+			var new_stat : float = clampf(v.x.x * (v.x.y * 0.01 * v.x.z + 1.0) * (v.x.w) + v.y.x, v.y.z, v.y.w)
 			_toplevel_stats[k] = new_stat
 			if old_stat != new_stat:
 				stat_changed.emit(k, new_stat, old_stat)
@@ -258,9 +338,14 @@ func _combine_precalculated(to_combine : Dictionary, stat : StringName, with : P
 			result.x.z * with.x.z,
 			result.x.w * with.x.w,
 		),
-		result.y + with.y,
-		result.z + with.z,
-		result.w + with.w
+		Vector4(
+			result.y.x + with.y.x,
+			result.y.y + with.y.y,
+			maxf(result.y.z, with.y.z),
+			minf(result.y.w, with.y.w),
+		),
+		Vector4.ZERO,
+		Vector4.ZERO,
 	)
 
 
