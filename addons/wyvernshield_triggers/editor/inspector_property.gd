@@ -26,6 +26,7 @@ func _update_property():
 	add_child(c)
 	set_bottom_editor(c)
 	var prop_infos : Array = trigger_info.property_infos
+	prop_arrays.clear()
 	for x in prop_infos:
 		prop_arrays.append(get_prop_info_parts(x))
 		c.add_child(create_prop_info_view(prop_arrays[-1]))
@@ -82,14 +83,16 @@ func _on_add_pressed():
 	arr.append(get_prop_info_from_parts(["new_property", "int", ""]))
 
 	changing = false
-	emit_changed(get_edited_property(), arr)
+	trigger_info.property_infos = arr
+	emit_changed(&"property_infos", arr, &"", false)
 
 
 func _on_remove_pressed(array_to_erase):
 	var arr = get_edited_object()[get_edited_property()].duplicate()
 	arr.erase(get_prop_info_from_parts(array_to_erase))
 	changing = false
-	emit_changed(get_edited_property(), arr)
+	trigger_info.property_infos = arr
+	emit_changed(&"property_infos", arr, &"", false)
 
 
 func get_prop_info_parts(from : String) -> Array:
@@ -125,7 +128,7 @@ func object_update_prop_infos():
 	for i in prop_arrays.size():
 		result[i] = get_prop_info_from_parts(prop_arrays[i])
 
-	get_edited_object().property_infos = result
+	trigger_info.property_infos = result
 	changing = true
 	emit_changed(get_edited_property(), result)
 

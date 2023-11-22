@@ -51,12 +51,7 @@ func to_code(index : int) -> String:
 	# > @export var direction : Vector2 = Vector2.ZERO
 	lines.append("class " + trigger_class + " extends Resource:")
 	for x in property_infos:
-		if x.find(":") != -1:
-			lines.append("\t@export var " + x)
-
-		else:
-			# Can export - needs type.
-			lines.append("\tvar " + x)
+		lines.append("\tvar " + x)
 
 	lines.append("\tpass\n\n")
 	# func skill_used(user : CombatActor, skill : Skill, direction : Vector2 = Vector2.ZERO):

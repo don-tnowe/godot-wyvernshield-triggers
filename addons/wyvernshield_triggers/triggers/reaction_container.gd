@@ -174,7 +174,7 @@ func move_state_changed(old_state, new_state) -> MoveStateChangedResult:
 class AbilityUsedResult extends Resource:
 	var ability
 	var target
-	@export var spawned_nodes : Array[Node] = []
+	var spawned_nodes : Array[Node] = []
 	pass
 
 
@@ -192,7 +192,7 @@ func ability_used(ability, target, spawned_nodes : Array[Node] = []) -> AbilityU
 class AbilityGetCostResult extends Resource:
 	var ability
 	var target
-	@export var cost : float
+	var cost : float
 	pass
 
 
@@ -210,7 +210,7 @@ func ability_get_cost(ability, target, cost : float) -> AbilityGetCostResult:
 class HitLandedResult extends Resource:
 	var target
 	var with_ability
-	@export var damage : float
+	var damage : float
 	pass
 
 
@@ -228,7 +228,7 @@ func hit_landed(target, with_ability, damage : float) -> HitLandedResult:
 class HitReceivedResult extends Resource:
 	var from
 	var ability
-	@export var damage : float
+	var damage : float
 	pass
 
 
@@ -244,7 +244,7 @@ func hit_received(from, ability, damage : float) -> HitReceivedResult:
 
 
 class ApplyStatDerivativesResult extends Resource:
-	@export var stat_sheet : StatSheet
+	var stat_sheet : StatSheet
 	pass
 
 
@@ -259,11 +259,11 @@ func apply_stat_derivatives(stat_sheet : StatSheet) -> ApplyStatDerivativesResul
 # Auto-generated end
 
 
-func _physics_process(delta):
+func _physics_process(delta : float):
 	_timed_queue.process(delta)
 
 
-func _process(delta):
+func _process(delta : float):
 	_timed_queue.process(delta)
 
 
