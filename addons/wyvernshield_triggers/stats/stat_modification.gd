@@ -3,6 +3,8 @@
 class_name StatModification
 extends Resource
 
+## Stores a collection of stat modifications.
+
 ## The type of a stat modification.
 enum Type {
 	BASE = 0, ## Base stat, added together before other calculations.
@@ -14,6 +16,18 @@ enum Type {
 	LOWER_LIMIT, ## Lower limit of the resulting value. The highest modification will be applied.
 	UPPER_LIMIT, ## Upper limit of the resulting value. The lowest modification will be applied.
 	MAX ## The size of the enumeration.
+}
+
+## The character to append to the end of a string. use with [method StatSheet.set_suffixed]. Also see [enum Type].
+const type_suffix = {
+	Type.BASE : "+",
+	Type.PERCENT_CHANGE : "%",
+	Type.PERCENT_MAGNITUDE : "$",
+	Type.MULTIPLIER : "*",
+	Type.FLAT_BONUS : "&",
+	Type._5 : "'",
+	Type.LOWER_LIMIT : "^",
+	Type.UPPER_LIMIT : "_",
 }
 
 ## The path where the stat changes will be stored. Path units are separated by [code]/[/code], like in a file or node path.
@@ -52,7 +66,6 @@ func _init():
 ## Returns the path applied to, which may differ if [member non_repeat] is set, to then remove it using [method StatSheet.clear]. [br]
 func apply(to: StatSheet, with_magnitude : float = 1.0) -> StringName:
 	var applied_path = to.get_non_repeating_path(at_path) if non_repeat else at_path
-	to.lock()
 	for i in stat_names.size():
 		var new_value := 0.0
 
@@ -64,7 +77,6 @@ func apply(to: StatSheet, with_magnitude : float = 1.0) -> StringName:
 
 		to.set_stat(stat_names[i], new_value, applied_path, stat_modification_types[i])
 
-	to.unlock()
 	if expires_in != 0.0:
 		to.clear_timed(applied_path, expires_in)
 
@@ -82,6 +94,34 @@ func with_timer(time : float) -> StatModification:
 	var new_instance : StatModification = duplicate()
 	new_instance.expires_in = time
 	return new_instance
+
+## Returns a dictionary, to use with [method StatSheet.set_from_dict].
+func to_dict() -> Dictionary:
+	var dict := {}
+	for i in stat_names.size():
+		dict[stat_names[i] + type_suffix[stat_modification_types[i]]] = stat_values[i]
+
+	return dict
+
+## Returns a new stat modification resource created from a dicitonary. See [member type_suffix] and [enum Type].
+static func from_dict(dict : Dictionary, with_at_path : StringName = &".", with_magnitude : float = 1.0, with_expires_in : float = 0.0, with_non_repeat : bool = false):
+	var result := StatModification.new()
+	result.at_path = with_at_path
+	result.magnitude = with_magnitude
+	result.expires_in = with_expires_in
+	result.non_repeat = with_non_repeat
+	for k in dict:
+		result.stat_values.append(dict[k])
+
+		var len : int = k.length() - 1
+		var suffix_char := StatSheet._modification_suffix.get(k.unicode_at(len), -1)
+		if suffix_char == -1:
+			result.stat_names.append(k)
+			result.stat_modification_types.append(Type.BASE)
+			continue
+
+		result.stat_names.append(k.left(len))
+		result.stat_modification_types.append(suffix_char)
 
 
 func _update_name():

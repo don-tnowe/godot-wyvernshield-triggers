@@ -61,7 +61,7 @@ const _stat_default := Projection(
 var _children_of := {}
 var _parents_of := {}
 var _path_stats := {}
-var _precalculated_stats_of := {}
+var _precalculated_stats_at := {}
 var _toplevel_stats := {}
 var _timed_queue : TimedQueue
 var _timer_conflict := -1
@@ -84,33 +84,59 @@ func _ready():
 func get_stat(stat : StringName, default_value : float = 0.0) -> float:
 	return _toplevel_stats.get(stat, default_value)
 
-## Retrieves a stat's value from a specific path.
-func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : StringName = &".") -> float:
-	return _toplevel_stats.get(stat, default_value)
+## Retrieves a stat's value from a specific path, of a specific modification type.
+func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : StringName = &".", modification_type : StatModification.Type = -1) -> float:
+	var result_matrix : Projection = _precalculated_stats_at.get(path, {}).get(stat, _stat_default)
+	match modification_type:
+		StatModification.Type.BASE:
+			return result_matrix.x.x
+		StatModification.Type.PERCENT_CHANGE:
+			return result_matrix.x.y
+		StatModification.Type.PERCENT_MAGNITUDE:
+			return result_matrix.x.z
+		StatModification.Type.MULTIPLIER:
+			return result_matrix.x.w
+		StatModification.Type.FLAT_BONUS:
+			return result_matrix.y.x
+		StatModification.Type._5:
+			return result_matrix.y.y
+		StatModification.Type.LOWER_LIMIT:
+			return result_matrix.y.z
+		StatModification.Type.UPPER_LIMIT:
+			return result_matrix.y.w
+		_:
+			return _matrix_to_value(result_matrix)
+
+	return default_value
 
 ## Retrieves all stats from all paths.
 func get_stats() -> Dictionary:
 	return _toplevel_stats.duplicate()
 
-## Changes a stat according to the set [enum StatModification.Type].
+## Changes a stat according to the set [enum StatModification.Type]. [br]
 func set_stat(stat : StringName, value : float, path : StringName = &".", modification_type : StatModification.Type = StatModification.Type.BASE):
+	_create_path(path)
+	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
 	match modification_type:
 		StatModification.Type.BASE:
-			set_base(stat, value, path)
+			stat_matrix.x.x = value
 		StatModification.Type.PERCENT_CHANGE:
-			set_percentage(stat, value, path)
+			stat_matrix.x.y = value
 		StatModification.Type.PERCENT_MAGNITUDE:
-			set_percentage_magnitude(stat, value, path)
+			stat_matrix.x.z = value
 		StatModification.Type.MULTIPLIER:
-			set_multiplier(stat, value, path)
+			stat_matrix.x.w = value
 		StatModification.Type.FLAT_BONUS:
-			set_flat_bonus(stat, value, path)
+			stat_matrix.y.x = value
 		StatModification.Type._5:
-			set_idk(stat, value, path)
+			stat_matrix.y.y = value
 		StatModification.Type.LOWER_LIMIT:
-			set_lower_limit(stat, value, path)
+			stat_matrix.y.z = value
 		StatModification.Type.UPPER_LIMIT:
-			set_upper_limit(stat, value, path)
+			stat_matrix.y.w = value
+
+	_path_stats[path][stat] = stat_matrix
+	_recalculate_upwards_one(path, stat)
 
 ## Applies a [StatModification], returning the path it was applied to. If modification is [code]null[/code], returns empty StringName.
 ## Returns the path applied to, which may differ if [member StatModification.non_repeat] is set, to then remove it using [method clear]. [br]
@@ -123,14 +149,12 @@ func set_from_dict(mods : Dictionary, path : StringName = &".", non_repeat : boo
 	if mods.size() == 0: return &""
 	if non_repeat: path = get_non_repeating_path(path)
 
-	lock()
 	var stat_names : Array = mods.keys()
 	var stat_values : Array = mods.values()
 
 	for i in stat_names.size():
 		set_suffixed(stat_names[i], stat_values[i], path)
 
-	unlock()
 	return path
 
 ## Applies a stat modification, taking a string that is the stat's key with a special character after it.
@@ -145,94 +169,70 @@ func set_from_dict(mods : Dictionary, path : StringName = &".", non_repeat : boo
 ## - [b]&"stat_":[/b] [method set_upper_limit][br]
 func set_suffixed(stat_suffixed : StringName, value : float = 1.0, path : StringName = &"."):
 	var len := stat_suffixed.length() - 1
-	set_stat(stat_suffixed.left(len), value, path, _modification_suffix[stat_suffixed.unicode_at(len)])
+	var suffix_char := _modification_suffix.get(stat_suffixed.unicode_at(len), -1)
+	if suffix_char == -1:
+		set_stat(stat_suffixed, value, path, StatModification.Type.BASE)
+		return
+
+	set_stat(stat_suffixed.left(len), value, path, _modification_suffix[suffix_char])
 
 ## Sets the base value of a stat.
 ## Base values are added together.
 func set_base(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.x.x = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.BASE)
 
 ## Sets the percentage increase of a stat.
 ## Percentage increases are added together: if two paths have a +50%, it would result in a 2x (= 100% + 50% + 50%) of the base stat value.
 func set_percentage(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.x.y = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.PERCENT_CHANGE)
 
 ## Sets the magnitude of percentage increases to a stat.
 ## The magnitude is a muliplier of the total percentage boosts: a +1205% boost multiplied by a 0.5x magnitude will become +602.5%, multiplying the base stat by 7.025x (= 100% + 602.5%).
 ## Magnitudes are MULTIPLIED together: if two paths have a x1.5, it would result in a x2.25 (= 1.5 x 1.5) multiplier of percentages.
 func set_percentage_magnitude(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.x.z = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.PERCENT_MAGNITUDE)
 
 ## Sets the multiplier increase of a stat.
 ## Multipliers are MULTIPLIED together: if two paths have a x1.5, it would result in a x2.25 (= 1.5 x 1.5) of the base stat value.
 func set_multiplier(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.x.w = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.MULTIPLIER)
 
 ## Sets the flat bonus increase of a stat.
 ## Similar to [method set_base], but multipliers like [method set_percentage] and [method set_multiplier] don't apply.
 func set_flat_bonus(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.y.x = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.FLAT_BONUS)
 
 
 func set_idk(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.y.y = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type._5)
 
 ## Sets the lower limit of a stat - its value won't go below that.
 func set_lower_limit(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.y.z = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.LOWER_LIMIT)
 
 ## Sets the upper limit of a stat - its value won't go above that.
 func set_upper_limit(stat : StringName, value : float, path : StringName = &"."):
-	_create_path(path)
-	var stat_matrix : Projection = _path_stats[path].get(stat, _stat_default)
-	stat_matrix.y.w = value
-	_path_stats[path][stat] = stat_matrix
-	_recalculate_upwards(path)
+	set_stat(stat, value, path, StatModification.Type.UPPER_LIMIT)
 
-## Reset all stats to zero.
-## Provide a path to only clear that path - if recursive, with all subpath as well. Subpath units are separated by "/".
+## Reset all stats to zero. [br]
+## Provide a path to only clear that path - if recursive, with all subpaths as well. Subpath units are separated by "/".
 func clear(path : StringName = &".", recursive : bool = true, _current_recursion : int = 0):
 	if !_path_stats.has(path):
 		return
 
+	var keys : Array = _precalculated_stats_at[path].keys()
+	_precalculated_stats_at[path].clear()
 	_path_stats[path].clear()
 	if recursive:
 		for x in _children_of[path]:
 			clear(x, true, _current_recursion + 1)
 
-		if _children_of[path].size() == 0:
-			_recalculate_upwards(path)
+	if _current_recursion == 0:
+		for x in keys:
+			_recalculate_upwards_one(path, x)
 
-## Reset stats by path to zero after a timer passes. Time is set in seconds.
-## Use this just before or after setting stats at that path to set these stats only temporarily.
+## Reset stats by path to zero after a timer passes. Time is set in seconds. [br]
+## Use this just before or after setting stats at that path to set these stats only temporarily. [br]
 ## [b]Note:[/b]: this will clear subpaths as well. Subpath units are separated by "/".
 func clear_timed(path : StringName, time : float):
 	_timer_conflict = -1
@@ -249,23 +249,24 @@ func clear_timed(path : StringName, time : float):
 	if _timed_queue.get_count() == 1:
 		_update_process_callback()
 
-## Changes the clear time of a path that was set to be cleared by [method clear_timed], in seconds.
+## Changes the clear time of a path that was set to be cleared by [method clear_timed], in seconds. [br]
 ## If set to [code]0[/code], expires immediately.
 func clear_time_set(path : StringName, new_time : float):
 	clear_timer_changed.emit(path, new_time, _timed_queue.set_time(path, new_time))
 
-## Retrieves the clear time of a path that was set to be cleared by [method clear_timed], in seconds.
+## Retrieves the clear time of a path that was set to be cleared by [method clear_timed], in seconds. [br]
 ## Returns [code]0[/code] if not found.
 func clear_time_get(path : StringName) -> float:
 	return _timed_queue.get_time(path)
 
-## Get the contribution to a stat's value from each path, as a string.
-## A path with 2 base, +30% percentage and x1.2 multiplier witll be shown as [code]"2 + 30% x 1.20"[/code].
-## A path with only a -10% percentage debuff will be shown as just [code]- 10%[/code]
+## Get the contribution to a stat's value from each path, as a string. [br]
+## A path with 2 base, +30% percentage and x1.2 multiplier witll be shown as [code]"2 + 30% x 1.20"[/code]. [br]
+## A path with only a -10% percentage debuff will be shown as just [code]- 10%[/code] [br]
+## To retrieve a value as numbers, use [method get_stat_at_path].
 func get_contributions(stat : StringName) -> Dictionary:
 	var result := {}
-	for k in _path_stats:
-		var cur : Projection = _path_stats[k].get(stat, _stat_default)
+	for k in _precalculated_stats_at:
+		var cur : Projection = _precalculated_stats_at[k].get(stat, _stat_default)
 		result[k] = ("%s%s%s%s%s" % [
 			str(cur.x.x) if cur.x.x != 0.0 else "",
 			" " if cur.x.z == 1.0 else " (" if cur.x.y != 0.0 else (" (%"),
@@ -283,11 +284,11 @@ func get_non_repeating_path(from_path : StringName) -> StringName:
 
 	return StringName("%s/%s" % [from_path, _children_of[from_path].size()])
 
-## Before changing lots of stats, lock to reduce recalculations.
+## [b]Deprecated.[/b] No effect.
 func lock():
 	_locks += 1
 
-## After a [method lock], don't forget to call this.
+## [b]Deprecated.[/b] No effect.
 func unlock():
 	_locks -= 1
 	if _locks == 0:
@@ -310,66 +311,89 @@ func _create_path(path : StringName):
 	if parent == "": parent = &"."
 	_children_of[path] = []
 	_path_stats[path] = {}
-	_precalculated_stats_of[path] = {}
+	_precalculated_stats_at[path] = {}
 	_parents_of[path] = parent
 	if path != &"" && !_children_of.has(parent):
 		_create_path(parent)
 
-	if path != &"":
+	if path != &"" && path != &".":
 		_children_of[parent].append(path)
+
+
+func _recalculate_upwards_one(path : StringName, stat_to_precalc : StringName):
+	if path == &"": path = &"."
+	var result : Projection = _stat_default
+	while true:
+		result = _path_stats[path].get(stat_to_precalc, _stat_default)
+		for k in _children_of[path]:
+			result = _combine_precalculated(result, _precalculated_stats_at[k].get(stat_to_precalc, _stat_default))
+
+		_precalculated_stats_at[path][stat_to_precalc] = result
+		if path == ".": break
+		path = _parents_of[path]
+
+	var old_stat : float = _toplevel_stats.get(stat_to_precalc, 0.0)
+	var new_stat : float = _matrix_to_value(result)
+	_toplevel_stats[stat_to_precalc] = new_stat
+	if old_stat != new_stat:
+		stat_changed.emit(stat_to_precalc, new_stat, old_stat)
 
 
 func _recalculate_upwards(path : StringName):
 	if path == &"": path = &"."
-	var result : Dictionary = _precalculated_stats_of[path]
-	result.clear()
-	for k in _children_of[path]:
-		var pre : Dictionary = _precalculated_stats_of[k]
-		for stat_k in pre:
-			result[stat_k] = _combine_precalculated(result, stat_k, pre[stat_k])
+	var result : Dictionary
+	while true:
+		result = _precalculated_stats_at[path]
+		result.clear()
+		var paths_own_stats : Dictionary = _path_stats[path]
+		for stat_k in paths_own_stats:
+			result[stat_k] = paths_own_stats[stat_k]
 
-	var pstats : Dictionary = _path_stats[path]
-	for k in pstats:
-		result[k] = _combine_precalculated(result, k, pstats[k])
+		for child_k in _children_of[path]:
+			var pre : Dictionary = _precalculated_stats_at[child_k]
+			for stat_k in pre:
+				result[stat_k] = _combine_precalculated(result.get(stat_k, _stat_default), pre[stat_k])
 
-	if path == &".":
-		if _locks != 0: return
-		var toplevel_stats_old := _toplevel_stats
-		for k in toplevel_stats_old:
-			if !result.has(k):
-				stat_changed.emit(k, 0, toplevel_stats_old[k])
+		if path == ".": break
+		path = _parents_of[path]
 
-		_toplevel_stats = {}
-		for k in result:
-			var v : Projection = result[k]
-			var old_stat : float = toplevel_stats_old.get(k, 0.0)
-			var new_stat : float = clampf(v.x.x * (v.x.y * 0.01 * v.x.z + 1.0) * (v.x.w) + v.y.x, v.y.z, v.y.w)
-			_toplevel_stats[k] = new_stat
-			if old_stat != new_stat:
-				stat_changed.emit(k, new_stat, old_stat)
+	if _locks != 0: return
+	var toplevel_stats_old := _toplevel_stats
+	for k in toplevel_stats_old:
+		if !result.has(k):
+			stat_changed.emit(k, 0, toplevel_stats_old[k])
 
-	else:
-		_recalculate_upwards(_parents_of[path])
+	_toplevel_stats = {}
+	for k in result:
+		var v : Projection = result[k]
+		var old_stat : float = toplevel_stats_old.get(k, 0.0)
+		var new_stat : float = _matrix_to_value(v)
+		_toplevel_stats[k] = new_stat
+		if old_stat != new_stat:
+			stat_changed.emit(k, new_stat, old_stat)
 
 
-func _combine_precalculated(to_combine : Dictionary, stat : StringName, with : Projection):
-	var result : Projection = to_combine.get(stat, _stat_default)
+func _combine_precalculated(to_combine : Projection, with : Projection) -> Projection:
 	return Projection(
 		Vector4(
-			result.x.x + with.x.x,
-			result.x.y + with.x.y,
-			result.x.z * with.x.z,
-			result.x.w * with.x.w,
+			to_combine.x.x + with.x.x,
+			to_combine.x.y + with.x.y,
+			to_combine.x.z * with.x.z,
+			to_combine.x.w * with.x.w,
 		),
 		Vector4(
-			result.y.x + with.y.x,
-			result.y.y + with.y.y,
-			maxf(result.y.z, with.y.z),
-			minf(result.y.w, with.y.w),
+			to_combine.y.x + with.y.x,
+			to_combine.y.y + with.y.y,
+			maxf(to_combine.y.z, with.y.z),
+			minf(to_combine.y.w, with.y.w),
 		),
 		Vector4.ZERO,
 		Vector4.ZERO,
 	)
+
+
+func _matrix_to_value(v : Projection) -> float:
+	return clampf(v.x.x * (v.x.y * 0.01 * v.x.z + 1.0) * (v.x.w) + v.y.x, v.y.z, v.y.w)
 
 
 func _update_process_callback():

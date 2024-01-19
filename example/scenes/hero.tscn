@@ -93,19 +93,22 @@ user_reactions = Array[ExtResource("6_q42py")]([])
 user_stats = SubResource("Resource_c8elq")
 
 [sub_resource type="Resource" id="Resource_4g3r7"]
-resource_name = "./equip/weapon (2)"
+resource_name = "./equip/weapon (3)"
 script = ExtResource("8_1amqb")
 at_path = &"equip/weapon"
 magnitude = 1.0
 expires_in = 0.0
 non_repeat = false
-stat_count = 2
+stat_count = 3
 stat_0/stat = &"weapon_damage"
 stat_0/value = 8.0
 stat_0/type = 0
 stat_1/stat = &"projectile_speed"
 stat_1/value = 12.0
 stat_1/type = 0
+stat_2/stat = &"movement_speed"
+stat_2/value = 0.75
+stat_2/type = 3
 
 [sub_resource type="Resource" id="Resource_ruwgc"]
 resource_name = "Basic"
@@ -341,6 +344,7 @@ shape = NodePath("../Shape")
 [node name="StatSheet" type="Node" parent="."]
 script = ExtResource("7_kc2b5")
 initial_stats = Array[ExtResource("8_1amqb")]([SubResource("Resource_6hu62")])
+process_callback = null
 
 [node name="StatusEffectView" type="Label3D" parent="." node_paths=PackedStringArray("reactions", "stats")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.777463, 0)
