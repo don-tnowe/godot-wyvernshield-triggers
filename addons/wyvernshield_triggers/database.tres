@@ -31,7 +31,7 @@ resource_name = "Hit Landed"
 script = ExtResource("4_23861")
 trigger_name = &"hit_landed"
 keep_initial_params = false
-property_infos = Array[String](["target", "with_ability", "damage : float"])
+property_infos = Array[String](["target", "with_ability", "damage : float", "unmitigated_damage : float"])
 
 [sub_resource type="Resource" id="Resource_ye17i"]
 resource_name = "Hit Received"

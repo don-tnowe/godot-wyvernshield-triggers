@@ -105,6 +105,12 @@ region_rect = Rect2(0, 0, 1024, 128)
 [node name="CombatNPC" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.57334, 0.251341, 2.8169)
 
+[node name="CombatNPC13" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.51932, 0.251341, 3.71839)
+
+[node name="CombatNPC14" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.66208, 0.251341, 4.2175)
+
 [node name="CombatNPC2" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.79354, 0.251341, 2.89662)
 
@@ -114,14 +120,32 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.21697, 0.251341, -0.857364
 [node name="CombatNPC4" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.87658, 0.251341, -1.56838)
 
+[node name="CombatNPC9" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.46574, 0.251341, -2.75508)
+
+[node name="CombatNPC10" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.49961, 0.251341, -0.763291)
+
 [node name="CombatNPC5" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22851, 0.251341, 3.75681)
+
+[node name="CombatNPC15" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.84206, 0.251341, 3.01673)
+
+[node name="CombatNPC16" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.29277, 0.251341, 3.73255)
 
 [node name="CombatNPC6" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.78272, 0.251341, 3.56957)
 
 [node name="CombatNPC7" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.80034, 0.251341, -2.31323)
+
+[node name="CombatNPC11" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.07947, 0.251341, -1.82549)
+
+[node name="CombatNPC12" parent="Enemies" instance=ExtResource("3_cmvai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.79183, 0.251341, -3.14456)
 
 [node name="CombatNPC8" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.31283, 0.251341, -2.99907)

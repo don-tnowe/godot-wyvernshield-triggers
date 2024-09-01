@@ -5,3 +5,6 @@
 .vscode/
 .vs/
 .idea/
+
+# Used in development
+addons/subresource_inspector/

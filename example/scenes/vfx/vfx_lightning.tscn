@@ -1,0 +1,67 @@
+[gd_scene load_steps=5 format=3 uid="uid://vs6gafkiicu5"]
+
+[ext_resource type="Texture2D" uid="uid://cxhdlue3ro7e1" path="res://example/graphics/vfx/vfx_lightning.tres" id="1_jmkae"]
+
+[sub_resource type="Animation" id="Animation_ryelo"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_pyy00"]
+resource_name = "new_animation"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(2, 2, 2), Vector3(4, 0, 1)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.233333),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"queue_free"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3lb73"]
+_data = {
+"RESET": SubResource("Animation_ryelo"),
+"new_animation": SubResource("Animation_pyy00")
+}
+
+[node name="VfxFire" type="Node3D"]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+billboard = 1
+alpha_cut = 1
+texture = ExtResource("1_jmkae")
+
+[node name="Anim" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_3lb73")
+}
+autoplay = "new_animation"

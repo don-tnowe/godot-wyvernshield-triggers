@@ -4,7 +4,7 @@ extends StatSheet
 
 ## A [StatSheet] that supports [StatDerivative] to make primary stats whose value adds to other stats at different ratios.
 
-## The primary stat sheet of the actor. This node will read primary stats and convert them to derivative stats.[br]
+## The primary stat sheet of the actor that will be changed by external means. This node will read primary stats and convert them to derivative stats.[br]
 ## The source stat sheet should have this node as their [member parent_sheet], to read the calculated derivatives.
 @export var source_stats : StatSheet:
 	set(v):

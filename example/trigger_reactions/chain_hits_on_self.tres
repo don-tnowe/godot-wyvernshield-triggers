@@ -7,7 +7,7 @@
 resource_name = "Chain Hits On Self"
 script = ExtResource("2_6mmr1")
 reaction_id = &"chain_hits_on_self"
-params = [0.5, 8.0]
+params = [0.75, 6.0]
 priority = -100
 expires_in = 0.0
 trigger_id = 4

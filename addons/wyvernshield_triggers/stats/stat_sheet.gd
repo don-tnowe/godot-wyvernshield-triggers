@@ -61,7 +61,7 @@ const _stat_default := Projection(
 		_update_process_callback()
 
 ## When using [method get_stat], consider parent sheet's stat modifications as well. This only works in one direction. [br]
-## Useful for stat derivatives (like "strength" affecting "health" and "damage").
+## If you use a [DerivativeStatSheet], store that [DerivativeStatSheet] into this property.
 @export var parent_sheet : StatSheet:
 	set(v):
 		if parent_sheet != null:

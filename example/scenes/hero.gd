@@ -1,16 +1,20 @@
 extends CombatActor
 
 @export var available_moves : Array[CombatMove]
-@export var available_weapons : Array[EquipmentItem]
 @export var cam : Camera3D
 @export var anim : AnimationPlayer
+@export_group("Equipment")
+@export var available_weapons : Array[EquipmentItem]
+@export var available_armors : Array[EquipmentItem]
+@export var available_amulets : Array[EquipmentItem]
 
 @export_group("Parameters")
 @export var move_maxspeed := 8.0
 @export var move_accel := 32.0
 @export var move_brake := 64.0
 
-var current_weapon : EquipmentItem
+var available_all_equipment : Array[Array]
+var current_equipment : Array[EquipmentItem] = [null, null, null]
 var last_input_direction := Vector3.FORWARD
 var last_shoot_direction := Vector3.FORWARD
 
@@ -21,7 +25,19 @@ func _ready():
 	for k in starting_stats:
 		_on_stat_changed(k, starting_stats[k], 0.0)
 
-	switch_weapon(0)
+	available_all_equipment = [
+		available_weapons,
+		available_armors,
+		available_amulets,
+	]
+	for i in 3:
+		var option_b := $"HUD/Control/Stats/EquipChooser".get_child(i * 2 + 1)
+		option_b.clear()
+		for x in available_all_equipment[i]:
+			option_b.add_item(x.resource_name)
+
+		option_b.item_selected.connect(switch_equip.bind(i))
+		switch_equip(0, i)
 
 
 func _physics_process(delta):
@@ -69,6 +85,7 @@ func use_move(index : int):
 		scene_instance.position = position
 		add_sibling(scene_instance)
 		if scene_instance.has_method(&"launch"):
+			scene_instance.scale *= stats.get_stat(&"projectile_size", 1.0)
 			scene_instance.launch(
 				stats.get_stat(&"weapon_damage"),
 				move,
@@ -91,19 +108,19 @@ func use_move(index : int):
 			reactions.remove_reaction(x.reaction_id, x.trigger_id)
 
 
-func switch_weapon(index : int):
-	if current_weapon != null:
-		for x in current_weapon.reactions:
+func switch_equip(item_index : int, slot_index : int):
+	if current_equipment[slot_index] != null:
+		for x in current_equipment[slot_index].reactions:
 			reactions.remove_reaction(x.reaction_id, x.trigger_id)
 
-		if current_weapon.stats != null:
-			stats.clear(current_weapon.stats.at_path)
+		if current_equipment[slot_index].stats != null:
+			stats.clear(current_equipment[slot_index].stats.at_path)
 
 	# After removing old reactions and stats, add ones from the new item.
-	var new_weapon = available_weapons[index]
-	current_weapon = new_weapon
-	reactions.add_reactions(new_weapon.reactions)
-	stats.set_from_modification(new_weapon.stats)
+	var new_equip : EquipmentItem = available_all_equipment[slot_index][item_index]
+	current_equipment[slot_index] = new_equip
+	reactions.add_reactions(new_equip.reactions)
+	stats.set_from_modification(new_equip.stats)
 
 
 func _unhandled_input(event):
@@ -119,12 +136,55 @@ func _unhandled_input(event):
 				use_move(event.keycode - KEY_1 + 2)
 
 
-func _on_target_hit(target, damage_result):
-	var _result := reactions.hit_landed(target, damage_result.ability, damage_result.damage)
+func _on_target_hit(target_hurtbox : Area3D, damage_result):
+	# trigger_input_values references INITIAL damage, before reactions such as damage reduction.
+	# This is enabled in the Trigger Database resource.
+	var _result := reactions.hit_landed(
+		target_hurtbox.get_parent(),
+		damage_result.ability,
+		damage_result.damage,
+		damage_result.trigger_input_values.damage,
+	)
 	# Do whatever with result
 
 
-func _on_stat_changed(stat : StringName, new_value : float, _old_value : float):
+func _on_stat_changed(stat : StringName, new_value : float, old_value : float):
 	match stat:
 		&"movement_speed":
 			move_maxspeed = new_value
+
+	_update_stat_hud(stat, new_value, old_value)
+
+
+func _update_stat_hud(stat : StringName, new_value : float, _old_value : float):
+	match stat:
+		&"max_hp":
+			# WARNING: instant update of current HP might set it value to 0.
+			# You might want to only limit it before a damage instance, or otherwise buffer the excess.
+			$"HUD/Control/ResourceBars/Life".max_value = new_value
+			$"HUD/Control/ResourceBars/Life".value = 12
+			$"HUD/Control/ResourceBars/GridContainer/MaxHP".text = "/ " + str(new_value)
+		&"max_mp":
+			# WARNING: instant update of current MP might set it value to 0.
+			# You might want to only limit it before an ability use, or otherwise buffer the excess.
+			$"HUD/Control/ResourceBars/Magic".max_value = new_value
+			$"HUD/Control/ResourceBars/Magic".value = 12
+			$"HUD/Control/ResourceBars/GridContainer/MaxMP".text = "/ " + str(new_value)
+		&"primary_bravery", &"primary_agility", &"primary_wit":
+			$"HUD/Control/Stats/Box/Stats".text = "🟠%s 🟢%s 🟣%s " % [
+				stats.get_stat(&"primary_bravery"),
+				stats.get_stat(&"primary_agility"),
+				stats.get_stat(&"primary_wit"),
+			]
+		&"weapon_damage", &"projectile_speed", &"projectile_size", &"movement_speed":
+			$"HUD/Control/Stats/Stats2".text = "⚔%.1f 🚀%.1f 🎱%.1f 👟%.1f" % [
+				stats.get_stat(&"weapon_damage"),
+				stats.get_stat(&"projectile_speed"),
+				stats.get_stat(&"projectile_size"),
+				stats.get_stat(&"movement_speed"),
+			]
+		&"defense", &"dodge_chance":
+			$"HUD/Control/Stats/Stats3".text = "🛡%.1f 🌪%.1f%s " % [
+				stats.get_stat(&"defense"),
+				stats.get_stat(&"dodge_chance"), "%",
+			]

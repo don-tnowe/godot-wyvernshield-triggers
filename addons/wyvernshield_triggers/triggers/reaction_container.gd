@@ -230,14 +230,16 @@ class HitLandedResult extends RefCounted:
 	var target
 	var with_ability
 	var damage : float
+	var unmitigated_damage : float
 	pass
 
 
-func hit_landed(target, with_ability, damage : float) -> HitLandedResult:
+func hit_landed(target, with_ability, damage : float, unmitigated_damage : float) -> HitLandedResult:
 	var result := HitLandedResult.new()
 	result.target = target
 	result.with_ability = with_ability
 	result.damage = damage
+	result.unmitigated_damage = unmitigated_damage
 	if _trigger_reactions[3].size() > 0:
 		_process_reactions(result, 3, 0, _trigger_reactions[3][-1].priority)
 	

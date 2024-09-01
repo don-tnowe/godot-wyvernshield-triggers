@@ -1,7 +1,8 @@
-[gd_scene load_steps=16 format=3 uid="uid://darlgo4gn52e0"]
+[gd_scene load_steps=17 format=3 uid="uid://darlgo4gn52e0"]
 
 [ext_resource type="Texture2D" uid="uid://c7wtq7wodamhy" path="res://example/graphics/characters/ice_wyverngoyle.png" id="1"]
 [ext_resource type="Script" path="res://example/scenes/combat_actor.gd" id="1_bcc0g"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="3_0mbnk"]
 [ext_resource type="Resource" uid="uid://3nop27vff2d3" path="res://example/trigger_reactions/damage_numbers.tres" id="3_4o85h"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/reaction_container.gd" id="3_snb4m"]
 [ext_resource type="Resource" uid="uid://cjh3jmtbnw02h" path="res://example/trigger_reactions/damage_calculation.tres" id="4_4deys"]
@@ -27,10 +28,10 @@ stat_2/stat = &"movement_speed"
 stat_2/value = 4.0
 stat_2/type = 0
 stat_3/stat = &"defense"
-stat_3/value = 64.0
+stat_3/value = 25.0
 stat_3/type = 0
 stat_4/stat = &"dodge_chance"
-stat_4/value = 20.0
+stat_4/value = 5.0
 stat_4/type = 0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_rsqks"]
@@ -114,7 +115,7 @@ stats = NodePath("StatSheet")
 [node name="Reactions" type="Node" parent="." node_paths=PackedStringArray("actor", "actor_visual", "stats", "anim_list", "shape")]
 script = ExtResource("3_snb4m")
 actor = NodePath("..")
-initial_reactions = Array[Resource("res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd")]([ExtResource("3_4o85h"), ExtResource("4_4deys")])
+initial_reactions = Array[ExtResource("3_0mbnk")]([ExtResource("3_4o85h"), ExtResource("4_4deys")])
 actor_visual = NodePath("../Sprite2D")
 stats = NodePath("../StatSheet")
 anim_list = NodePath("../Anim")

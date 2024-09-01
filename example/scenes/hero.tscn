@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://dhtc1iowcn3o6"]
+[gd_scene load_steps=78 format=3 uid="uid://dhtc1iowcn3o6"]
 
 [ext_resource type="Script" path="res://example/scenes/hero.gd" id="1_7me18"]
 [ext_resource type="Texture2D" uid="uid://cv5xfk7vayh5j" path="res://example/graphics/characters/hero.png" id="1_cjwhw"]
@@ -12,8 +12,12 @@
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/triggers/trigger_reaction.gd" id="6_q42py"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_sheet.gd" id="7_kc2b5"]
 [ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_modification.gd" id="8_1amqb"]
+[ext_resource type="Resource" uid="uid://dnsy6d08b71qf" path="res://example/trigger_reactions/explode_on_target.tres" id="9_c88t0"]
+[ext_resource type="Resource" uid="uid://bxr6mlan7kxq5" path="res://example/trigger_reactions/chain_hits_on_target.tres" id="9_p13ay"]
 [ext_resource type="Script" path="res://example/scenes/status_effect_view.gd" id="10_d66xx"]
 [ext_resource type="Resource" uid="uid://cjh3jmtbnw02h" path="res://example/trigger_reactions/damage_calculation.tres" id="10_s8iw0"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/derivative_stat_sheet.gd" id="12_sjxcm"]
+[ext_resource type="Script" path="res://addons/wyvernshield_triggers/stats/stat_derivative.gd" id="14_5iqrm"]
 
 [sub_resource type="Resource" id="Resource_rnn4u"]
 resource_name = "Basic Shot"
@@ -101,14 +105,14 @@ expires_in = 0.0
 non_repeat = false
 stat_count = 3
 stat_0/stat = &"weapon_damage"
-stat_0/value = 8.0
+stat_0/value = 20.0
 stat_0/type = 0
 stat_1/stat = &"projectile_speed"
 stat_1/value = 12.0
 stat_1/type = 0
-stat_2/stat = &"movement_speed"
-stat_2/value = 0.75
-stat_2/type = 3
+stat_2/stat = &"projectile_size"
+stat_2/value = 1.0
+stat_2/type = 0
 
 [sub_resource type="Resource" id="Resource_ruwgc"]
 resource_name = "Basic"
@@ -126,25 +130,229 @@ expires_in = 0.0
 inherit_from = ExtResource("5_m7016")
 
 [sub_resource type="Resource" id="Resource_r881i"]
-resource_name = "./equip/weapon (2)"
+resource_name = "./equip/weapon (3)"
 script = ExtResource("8_1amqb")
 at_path = &"equip/weapon"
 magnitude = 1.0
 expires_in = 0.0
 non_repeat = false
-stat_count = 2
+stat_count = 3
 stat_0/stat = &"weapon_damage"
-stat_0/value = 4.0
+stat_0/value = 10.0
 stat_0/type = 0
 stat_1/stat = &"projectile_speed"
 stat_1/value = 4.0
 stat_1/type = 0
+stat_2/stat = &"projectile_size"
+stat_2/value = 1.0
+stat_2/type = 0
 
 [sub_resource type="Resource" id="Resource_ffyvc"]
 resource_name = "Double Shot"
 script = ExtResource("5_5omta")
 reactions = Array[ExtResource("6_q42py")]([SubResource("Resource_725pq")])
 stats = SubResource("Resource_r881i")
+
+[sub_resource type="Resource" id="Resource_q2fit"]
+resource_name = "./equip/weapon (3)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/weapon"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 3
+stat_0/stat = &"weapon_damage"
+stat_0/value = 5.0
+stat_0/type = 0
+stat_1/stat = &"projectile_speed"
+stat_1/value = 5.0
+stat_1/type = 0
+stat_2/stat = &"projectile_size"
+stat_2/value = 0.5
+stat_2/type = 0
+
+[sub_resource type="Resource" id="Resource_fijet"]
+resource_name = "Lightning Shot"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([ExtResource("9_p13ay")])
+stats = SubResource("Resource_q2fit")
+
+[sub_resource type="Resource" id="Resource_a02bv"]
+resource_name = "./equip/weapon (3)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/weapon"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 3
+stat_0/stat = &"weapon_damage"
+stat_0/value = 5.0
+stat_0/type = 0
+stat_1/stat = &"projectile_speed"
+stat_1/value = 5.0
+stat_1/type = 0
+stat_2/stat = &"projectile_size"
+stat_2/value = 0.5
+stat_2/type = 0
+
+[sub_resource type="Resource" id="Resource_eq58x"]
+resource_name = "Explosive Shot"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([ExtResource("9_c88t0")])
+stats = SubResource("Resource_a02bv")
+
+[sub_resource type="Resource" id="Resource_qy1nc"]
+resource_name = "./equip/armor (0)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/armor"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 0
+
+[sub_resource type="Resource" id="Resource_3vwah"]
+resource_name = "Prisoner's Rags"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_qy1nc")
+
+[sub_resource type="Resource" id="Resource_23nll"]
+resource_name = "./equip/armor (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/armor"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"max_hp"
+stat_0/value = 20.0
+stat_0/type = 0
+stat_1/stat = &"movement_speed"
+stat_1/value = -20.0
+stat_1/type = 1
+
+[sub_resource type="Resource" id="Resource_bsx5h"]
+resource_name = "Heavy (++HP, slow)"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_23nll")
+
+[sub_resource type="Resource" id="Resource_gnrje"]
+resource_name = "./equip/armor (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/armor"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"movement_speed"
+stat_0/value = 30.0
+stat_0/type = 1
+stat_1/stat = &"max_hp"
+stat_1/value = 5.0
+stat_1/type = 0
+
+[sub_resource type="Resource" id="Resource_lfdys"]
+resource_name = "Swift (+HP, fast)"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_gnrje")
+
+[sub_resource type="Resource" id="Resource_pmycj"]
+resource_name = "./equip/armor (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/armor"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"max_mp"
+stat_0/value = 20.0
+stat_0/type = 0
+stat_1/stat = &"weapon_damage"
+stat_1/value = 1.0
+stat_1/type = 1
+
+[sub_resource type="Resource" id="Resource_fge8i"]
+resource_name = "Enchanted (++MP)"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_pmycj")
+
+[sub_resource type="Resource" id="Resource_yk8r0"]
+resource_name = "./equip/amulet (0)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/amulet"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 0
+
+[sub_resource type="Resource" id="Resource_113ra"]
+resource_name = "Unburdened Neck"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_yk8r0")
+
+[sub_resource type="Resource" id="Resource_0kqf1"]
+resource_name = "./equip/amulet (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/amulet"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"primary_bravery"
+stat_0/value = 2.0
+stat_0/type = 0
+stat_1/stat = &"primary_wit"
+stat_1/value = 2.0
+stat_1/type = 0
+
+[sub_resource type="Resource" id="Resource_ueejv"]
+resource_name = "+2 Bravery, +2 Wit"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_0kqf1")
+
+[sub_resource type="Resource" id="Resource_c7wnb"]
+resource_name = "./equip/amulet (1)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/amulet"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 1
+stat_0/stat = &"primary_bravery"
+stat_0/value = 4.0
+stat_0/type = 0
+
+[sub_resource type="Resource" id="Resource_6he8n"]
+resource_name = "+4 Bravery"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_c7wnb")
+
+[sub_resource type="Resource" id="Resource_x2ajj"]
+resource_name = "./equip/amulet (2)"
+script = ExtResource("8_1amqb")
+at_path = &"equip/amulet"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"primary_agility"
+stat_0/value = 3.0
+stat_0/type = 0
+stat_1/stat = &"primary_wit"
+stat_1/value = 1.0
+stat_1/type = 0
+
+[sub_resource type="Resource" id="Resource_0jh0d"]
+resource_name = "+3 Agility, +1 Wit"
+script = ExtResource("5_5omta")
+reactions = Array[ExtResource("6_q42py")]([])
+stats = SubResource("Resource_x2ajj")
 
 [sub_resource type="Resource" id="Resource_6hu62"]
 resource_name = "./init (5)"
@@ -157,18 +365,84 @@ stat_count = 5
 stat_0/stat = &"max_hp"
 stat_0/value = 20.0
 stat_0/type = 0
-stat_1/stat = &"max_mana"
+stat_1/stat = &"max_mp"
 stat_1/value = 20.0
 stat_1/type = 0
 stat_2/stat = &"movement_speed"
 stat_2/value = 4.0
 stat_2/type = 0
 stat_3/stat = &"defense"
-stat_3/value = 1.0
+stat_3/value = 10.0
 stat_3/type = 0
 stat_4/stat = &"dodge_chance"
-stat_4/value = 20.0
+stat_4/value = 10.0
 stat_4/type = 0
+
+[sub_resource type="Resource" id="Resource_w7ck0"]
+resource_name = "./meta/attr/bra (2)"
+script = ExtResource("8_1amqb")
+at_path = &"meta/attr/bra"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"max_hp"
+stat_0/value = 20.0
+stat_0/type = 1
+stat_1/stat = &"weapon_damage"
+stat_1/value = 10.0
+stat_1/type = 1
+
+[sub_resource type="Resource" id="Resource_sen1b"]
+resource_name = "Bravery"
+script = ExtResource("14_5iqrm")
+source_stat = &"primary_bravery"
+source_rounding_mode = 1
+derivative_stats = SubResource("Resource_w7ck0")
+
+[sub_resource type="Resource" id="Resource_3w8dc"]
+resource_name = "./meta/attr/agi (2)"
+script = ExtResource("8_1amqb")
+at_path = &"meta/attr/agi"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"dodge_chance"
+stat_0/value = 10.0
+stat_0/type = 1
+stat_1/stat = &"movement_speed"
+stat_1/value = 10.0
+stat_1/type = 1
+
+[sub_resource type="Resource" id="Resource_njbw6"]
+resource_name = "Agility"
+script = ExtResource("14_5iqrm")
+source_stat = &"primary_agility"
+source_rounding_mode = 1
+derivative_stats = SubResource("Resource_3w8dc")
+
+[sub_resource type="Resource" id="Resource_y3tcr"]
+resource_name = "./meta/attr/wit (2)"
+script = ExtResource("8_1amqb")
+at_path = &"meta/attr/wit"
+magnitude = 1.0
+expires_in = 0.0
+non_repeat = false
+stat_count = 2
+stat_0/stat = &"max_mp"
+stat_0/value = 10.0
+stat_0/type = 1
+stat_1/stat = &"projectile_size"
+stat_1/value = 20.0
+stat_1/type = 1
+
+[sub_resource type="Resource" id="Resource_55cy5"]
+resource_name = "Wit"
+script = ExtResource("14_5iqrm")
+source_stat = &"primary_wit"
+source_rounding_mode = 1
+derivative_stats = SubResource("Resource_y3tcr")
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_mxlvs"]
 height = 0.446696
@@ -319,15 +593,35 @@ region = Rect2(32, 0, 64, 64)
 margin = Rect2(32, 0, 0, 0)
 filter_clip = true
 
+[sub_resource type="LabelSettings" id="LabelSettings_ia5s0"]
+font_size = 12
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_1v642"]
+font_size = 24
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_xba8j"]
+font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_skl30"]
+font_size = 20
+
 [node name="Hero" type="CharacterBody3D" node_paths=PackedStringArray("cam", "anim", "reactions", "stats")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0)
 script = ExtResource("1_7me18")
 available_moves = Array[ExtResource("2_pxbg6")]([SubResource("Resource_rnn4u"), SubResource("Resource_mjfy1"), SubResource("Resource_aheha"), SubResource("Resource_1pnob")])
-available_weapons = Array[ExtResource("5_5omta")]([SubResource("Resource_ruwgc"), SubResource("Resource_ffyvc")])
 cam = NodePath("Camera3D")
 anim = NodePath("Anim")
+available_weapons = Array[ExtResource("5_5omta")]([SubResource("Resource_ruwgc"), SubResource("Resource_ffyvc"), SubResource("Resource_fijet"), SubResource("Resource_eq58x")])
+available_armors = Array[ExtResource("5_5omta")]([SubResource("Resource_3vwah"), SubResource("Resource_bsx5h"), SubResource("Resource_lfdys"), SubResource("Resource_fge8i")])
+available_amulets = Array[ExtResource("5_5omta")]([SubResource("Resource_113ra"), SubResource("Resource_ueejv"), SubResource("Resource_6he8n"), SubResource("Resource_0jh0d")])
 move_maxspeed = 4.0
-move_accel = 16.0
+move_accel = 900000.0
 move_brake = 32.0
+move_max_speed = null
 reactions = NodePath("Reactions")
 stats = NodePath("StatSheet")
 
@@ -341,10 +635,15 @@ anim_list = NodePath("../Anim")
 ui = NodePath("../HUD")
 shape = NodePath("../Shape")
 
-[node name="StatSheet" type="Node" parent="."]
+[node name="StatSheet" type="Node" parent="." node_paths=PackedStringArray("parent_sheet")]
 script = ExtResource("7_kc2b5")
 initial_stats = Array[ExtResource("8_1amqb")]([SubResource("Resource_6hu62")])
-process_callback = null
+parent_sheet = NodePath("../StatSheetDeriv")
+
+[node name="StatSheetDeriv" type="Node" parent="." node_paths=PackedStringArray("source_stats")]
+script = ExtResource("12_sjxcm")
+source_stats = NodePath("../StatSheet")
+derivatives = Array[ExtResource("14_5iqrm")]([SubResource("Resource_sen1b"), SubResource("Resource_njbw6"), SubResource("Resource_55cy5")])
 
 [node name="StatusEffectView" type="Label3D" parent="." node_paths=PackedStringArray("reactions", "stats")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.777463, 0)
@@ -391,18 +690,24 @@ libraries = {
 
 [node name="Control" type="Control" parent="HUD"]
 layout_mode = 3
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
 
 [node name="ResourceBars" type="Control" parent="HUD/Control"]
-anchors_preset = 0
-offset_top = -66.0
-offset_bottom = -66.0
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -74.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 0
 scale = Vector2(2, 2)
 
 [node name="Life" type="TextureProgressBar" parent="HUD/Control/ResourceBars"]
@@ -417,7 +722,7 @@ offset_right = 32.0
 offset_bottom = 32.0
 max_value = 102.25
 step = 0.0
-value = 55.3
+value = 12.0
 fill_mode = 3
 texture_under = SubResource("29")
 texture_progress = SubResource("30")
@@ -433,92 +738,169 @@ offset_top = -32.0
 offset_right = 32.0
 offset_bottom = 32.0
 step = 0.0
-value = 69.45
+value = 12.0
 fill_mode = 3
 texture_over = SubResource("38")
 texture_progress = SubResource("31")
 
-[node name="Label" type="Label" parent="HUD/Control"]
-visible = false
-layout_mode = 0
-offset_left = 81.0
-offset_top = -115.0
-offset_right = 486.0
-offset_bottom = -9.0
-theme_override_colors/font_outline_color = Color(0.109804, 0.0901961, 0.792157, 1)
-text = "[ Rightclick ] - Frailty Shards (reduces defense)
-[ Q ] - Fire Bomb (hit burning targets
-to advance burn faster)
-[ E ] - Regen"
+[node name="GridContainer" type="GridContainer" parent="HUD/Control/ResourceBars"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 3
 
-[node name="Label2" type="Label" parent="HUD/Control"]
-visible = false
-layout_mode = 0
-offset_left = -402.0
-offset_top = -117.0
-offset_right = -81.0
+[node name="HP" type="Label" parent="HUD/Control/ResourceBars/GridContainer"]
+layout_mode = 2
+text = "12 🩸"
+label_settings = SubResource("LabelSettings_ia5s0")
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="Control" type="Control" parent="HUD/Control/ResourceBars/GridContainer"]
+layout_mode = 2
+
+[node name="MP" type="Label" parent="HUD/Control/ResourceBars/GridContainer"]
+layout_mode = 2
+text = "💧 12"
+label_settings = SubResource("LabelSettings_ia5s0")
+vertical_alignment = 2
+
+[node name="MaxHP" type="Label" parent="HUD/Control/ResourceBars/GridContainer"]
+self_modulate = Color(0.802083, 0.559787, 0.559787, 1)
+layout_mode = 2
+text = "12"
+label_settings = SubResource("LabelSettings_ia5s0")
+horizontal_alignment = 2
+
+[node name="Control2" type="Control" parent="HUD/Control/ResourceBars/GridContainer"]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+
+[node name="MaxMP" type="Label" parent="HUD/Control/ResourceBars/GridContainer"]
+self_modulate = Color(0.455702, 0.580142, 0.817708, 1)
+layout_mode = 2
+text = "12"
+label_settings = SubResource("LabelSettings_ia5s0")
+
+[node name="Stats" type="VBoxContainer" parent="HUD/Control"]
+layout_mode = 2
+offset_left = 21.0
+offset_top = -329.0
+offset_right = 287.0
+offset_bottom = -19.0
+alignment = 2
+
+[node name="Label" type="Label" parent="HUD/Control/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "--- Stats/Equip ---"
+label_settings = SubResource("LabelSettings_1v642")
+horizontal_alignment = 1
+
+[node name="Box" type="HBoxContainer" parent="HUD/Control/Stats"]
+layout_mode = 2
+
+[node name="Stats" type="Label" parent="HUD/Control/Stats/Box"]
+layout_mode = 2
+size_flags_horizontal = 3
+label_settings = SubResource("LabelSettings_xba8j")
+horizontal_alignment = 1
+
+[node name="Button" type="Label" parent="HUD/Control/Stats/Box"]
+layout_mode = 2
+tooltip_text = "Per point of 🟠Bravery:
+- 20% Increased Maximum Health 🩸
+- 10% Increased Weapon Damage ⚔
+Per point of 🟢Agility:
+- 10% Increased Dodge Chance 🌪
+- 10% Increased Movement Speed 👟
+Per point of 🟣Wit:
+- 10% Increased Maximum Mana 💧
+- 20% Increased Projectile Size 🎱"
+mouse_filter = 0
+mouse_default_cursor_shape = 16
+text = "[ ? ]"
+
+[node name="Stats2" type="Label" parent="HUD/Control/Stats"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="Stats3" type="Label" parent="HUD/Control/Stats"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="EquipChooser" type="GridContainer" parent="HUD/Control/Stats"]
+layout_mode = 2
+columns = 2
+
+[node name="Label4" type="Label" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+text = "Weapon:"
+
+[node name="OptionButton" type="OptionButton" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+
+[node name="Label5" type="Label" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+text = "Wear:"
+
+[node name="OptionButton2" type="OptionButton" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+
+[node name="Label6" type="Label" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+text = "Amulet:"
+
+[node name="OptionButton3" type="OptionButton" parent="HUD/Control/Stats/EquipChooser"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+
+[node name="Tutorial" type="VBoxContainer" parent="HUD/Control"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -336.0
+offset_top = -340.0
+offset_right = -7.0
 offset_bottom = -12.0
 grow_horizontal = 0
-theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
-text = "[ WASD ] - Move
-[ Leftclick ] - Attack
-Hit statues to restore Magic
-When you break statues, Health orbs can drop
-Statues slow on touch"
+grow_vertical = 0
+alignment = 2
 
-[node name="Label3" type="Label" parent="HUD/Control"]
-layout_mode = 0
-offset_left = -560.0
-offset_top = -194.0
-offset_right = -76.0
-offset_bottom = -116.0
+[node name="Label5" type="Label" parent="HUD/Control/Tutorial"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "--- Controls ---"
+label_settings = SubResource("LabelSettings_1v642")
+horizontal_alignment = 1
+
+[node name="Label4" type="Label" parent="HUD/Control/Tutorial"]
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.980392, 0.0823529, 0.0392157, 1)
 text = "[ ARROWS ] - Move
 [ Left-click ] - Attack (depends on Weapon)
 "
+label_settings = SubResource("LabelSettings_skl30")
 autowrap_mode = 2
 
-[node name="EquipChooser" type="HBoxContainer" parent="HUD/Control"]
-layout_mode = 0
-offset_left = -558.0
-offset_top = -142.0
-offset_right = -142.0
-offset_bottom = -111.0
-
-[node name="Label4" type="Label" parent="HUD/Control/EquipChooser"]
+[node name="Label3" type="Label" parent="HUD/Control/Tutorial"]
 layout_mode = 2
-text = "Weapon:"
-
-[node name="OptionButton" type="OptionButton" parent="HUD/Control/EquipChooser"]
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-item_count = 2
-selected = 0
-popup/item_0/text = "Strong"
-popup/item_0/id = 0
-popup/item_1/text = "Double"
-popup/item_1/id = 1
-
-[node name="GridContainer" type="VBoxContainer" parent="HUD/Control"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = -558.0
-offset_top = -104.0
-offset_right = -39.0
-offset_bottom = -18.0
-grow_vertical = 0
-scale = Vector2(0.75, 0.75)
-
-[node name="Label3" type="Label" parent="HUD/Control/GridContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
 text = "[ Right-click ] - Frailty Shards (200% damage, reduces target's defense)"
+autowrap_mode = 2
 metadata/_edit_group_ = true
 
-[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label3"]
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/Tutorial/Label3"]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -528,13 +910,13 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.619608, 0.286275, 1, 0.498039)
 
-[node name="Label" type="Label" parent="HUD/Control/GridContainer"]
+[node name="Label" type="Label" parent="HUD/Control/Tutorial"]
 layout_mode = 2
-size_flags_horizontal = 0
 text = "[ 1 ] - Electrify Bolt (200% damage, hits on target chain to nearest enemy)"
+autowrap_mode = 2
 metadata/_edit_group_ = true
 
-[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label"]
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/Tutorial/Label"]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -544,13 +926,13 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.286275, 0.576471, 1, 0.498039)
 
-[node name="Label2" type="Label" parent="HUD/Control/GridContainer"]
+[node name="Label2" type="Label" parent="HUD/Control/Tutorial"]
 layout_mode = 2
-size_flags_horizontal = 0
 text = "[ 2 ] - Sharpshooter (x0.5 move speed, x1.5 projectile speed, x1.25 damage)"
+autowrap_mode = 2
 metadata/_edit_group_ = true
 
-[node name="ColorRect" type="ColorRect" parent="HUD/Control/GridContainer/Label2"]
+[node name="ColorRect" type="ColorRect" parent="HUD/Control/Tutorial/Label2"]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -561,4 +943,4 @@ grow_vertical = 2
 color = Color(0.207843, 0.764706, 0.192157, 0.498039)
 
 [connection signal="stat_changed" from="StatSheet" to="." method="_on_stat_changed"]
-[connection signal="item_selected" from="HUD/Control/EquipChooser/OptionButton" to="." method="switch_weapon"]
+[connection signal="stat_changed" from="StatSheetDeriv" to="." method="_on_stat_changed"]

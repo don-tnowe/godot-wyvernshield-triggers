@@ -7,7 +7,7 @@
 resource_name = "Double Projectile Chance"
 script = ExtResource("3_0v385")
 reaction_id = &"double_projectile_chance"
-params = [0.25, 10.0]
+params = [0.5, 10.0]
 priority = 0
 expires_in = 0.0
 trigger_id = 1
