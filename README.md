@@ -1,15 +1,16 @@
 # Wyvernshield Triggers
 
-Attach a bunch of trigger reactions to `reaction_container`, then do `reaction_container.hit_received(who, how, damage)` and all the reactions will contribute to the received hit.
+Framework for RPG passive abilities. Attach a bunch of trigger reactions to `reaction_container`, then do `reaction_container.hit_received(who, how, damage)` and all the reactions will contribute to the received hit.
 
-- Reactions that change the outcome of an action based on conditions - can be 
-- Stat modifications that support grouping changes to then remove together - when an item gets unequipped, for example
-- Temporary stat changes and reactions
+- Reactions that change the outcome of an action based on conditions - can be attached and removed at runtime
+- Stat modifications that support grouping changes to then remove together - when an item gets equipped or unequipped, for example
+- Derivative stats (such as: strength becoming damage and health)
+- Temporary stat changes and reactions, for status effects 'n' such
 - Custom inspector view for reactions and stat modifications
 
 # Setup
 
-- Give your actors a `TriggerReactionContainer` and/or a `StatSheet`
+- Give your actors a `TriggerReactionContainer` and/or a `StatSheet`, optionally a `DerivativeStatSheet`
 - The Resources inside these two objects can be defined locally or saved as files.
 - To edit trigger parameters and their result object's properties, click the View Database button inside a `TriggerReaction`.
 
