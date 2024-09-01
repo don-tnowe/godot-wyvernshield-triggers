@@ -50,11 +50,11 @@ const type_suffix = {
 @export var non_repeat := false
 
 ## Names of modified stats.
-var stat_names : Array[StringName]
+var stat_names : Array[StringName] = []
 ## Values of modified stats.
-var stat_values : Array[float]
+var stat_values : Array[float] = []
 ## Modification types of modified stats. See [enum Type].
-var stat_modification_types : Array[Type]
+var stat_modification_types : Array[Type] = []
 
 
 func _init():
@@ -81,6 +81,15 @@ func apply(to: StatSheet, with_magnitude : float = 1.0) -> StringName:
 		to.clear_timed(applied_path, expires_in)
 
 	return applied_path
+
+## Creates a new StatModification that combines entries from both sources. Path and other meta-properties are taken from the resource this method was called on.
+func merge(with : StatModification) -> StatModification:
+	var result := duplicate()
+	result.stat_names = stat_names + with.stat_names
+	result.stat_values = stat_values + with.stat_values
+	result.stat_modification_types = stat_modification_types + with.stat_modification_types
+	return result
+
 
 ## Returns a copy of this modification, but with [member magnitude] multiplied by a value.
 ## If you only need to apply magnitude once, use [method apply] with the [code]with_magnitude[/code] parameter set.

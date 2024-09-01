@@ -98,53 +98,33 @@ texture = ExtResource("1_lyust")
 region_enabled = true
 region_rect = Rect2(0, 0, 1024, 128)
 
-[node name="Hero" parent="." node_paths=PackedStringArray("cam", "anim", "reactions", "stats") instance=ExtResource("2_jdlns")]
-cam = NodePath("Camera3D")
-anim = NodePath("Anim")
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
+[node name="Hero" parent="." instance=ExtResource("2_jdlns")]
 
 [node name="Enemies" type="Node" parent="."]
 
-[node name="CombatNPC" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.57334, 0.251341, 2.8169)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC2" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC2" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.79354, 0.251341, 2.89662)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC3" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC3" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.21697, 0.251341, -0.857364)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC4" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC4" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.87658, 0.251341, -1.56838)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC5" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC5" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22851, 0.251341, 3.75681)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC6" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC6" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.78272, 0.251341, 3.56957)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC7" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC7" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.80034, 0.251341, -2.31323)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
-[node name="CombatNPC8" parent="Enemies" node_paths=PackedStringArray("reactions", "stats") instance=ExtResource("3_cmvai")]
+[node name="CombatNPC8" parent="Enemies" instance=ExtResource("3_cmvai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.31283, 0.251341, -2.99907)
-reactions = NodePath("Reactions")
-stats = NodePath("StatSheet")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.402044, 0.915621, 0, -0.915621, 0.402044, 0, 6.14552, 7.74008)

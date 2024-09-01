@@ -2,9 +2,9 @@
 class_name StatSheet
 extends Node
 
-## A node that holds stats, input as various modifications and output. [br]
+## A node that holds stats, input as various modifications and output as a single number. [br]
 ##
-## Modify stats via [method set_stat], [method set_from_modification], [method set_suffixed] or other [code]set_*[/code] methods. Retrieve them using [method get_stat].[br]
+## Modify stats via [method set_stat], [method set_from_modification], [method set_suffixed] or other [code]set_*[/code] methods. Retrieve them using [method use_stat] or [method get_stat].[br]
 ## [br]
 ## Most setter methods have a [code]path[/code] parameter - modifications at different paths stack together, applying the same stat and type to the same path overwrites the value. [br]
 ## Paths can be imagined as folders of files - use "/" to divide units, like [code]equip/helmet[/code] or [code]meta/skilltree/warrior/vital_might[/code]. When a modification occurs at a path, stats under all paths above get recalculated, so that rarely-changed paths don't get fully recalculated every time. [br]
@@ -12,6 +12,8 @@ extends Node
 
 ## Emitted when stat gets changed through any means.
 signal stat_changed(stat : StringName, new_value : float, old_value : float)
+## Emitted when stat gets changed through any means, [b]without considering [member parent_sheet] contributions[/b].
+signal stat_changed_raw(stat : StringName, new_value : float, old_value : float)
 
 ## Emitted when [method clear_timed] adds a timer.
 signal clear_timer_added(path : StringName, time_seconds : float, index_in_queue : int)
@@ -58,10 +60,21 @@ const _stat_default := Projection(
 		process_callback = v
 		_update_process_callback()
 
+## When using [method get_stat], consider parent sheet's stat modifications as well. This only works in one direction. [br]
+## Useful for stat derivatives (like "strength" affecting "health" and "damage").
+@export var parent_sheet : StatSheet:
+	set(v):
+		if parent_sheet != null:
+			parent_sheet.stat_changed_raw.disconnect(_on_parent_stat_changed)
+
+		parent_sheet = v
+		if v != null:
+			v.stat_changed_raw.connect(_on_parent_stat_changed)
+
 var _children_of := {}
 var _parents_of := {}
-var _path_stats := {}
-var _precalculated_stats_at := {}
+var _path_stats := {}  # Set through set_*()
+var _precalculated_stats_at := {}  # Updated from _path_stats when recalculating
 var _toplevel_stats := {}
 var _timed_queue : TimedQueue
 var _timer_conflict := -1
@@ -77,12 +90,41 @@ func _init():
 
 
 func _ready():
-	# IDK why I need to do this, but I do.
+	# IDK why I need to do this, but I do.  
 	_update_process_callback()
 
-## Retrieves a stat's value, calculated from all paths.
-func get_stat(stat : StringName, default_value : float = 0.0) -> float:
-	return _toplevel_stats.get(stat, default_value)
+## Retrieves a stat's value, calculated from all paths. [br]
+## [code]parent_modifications[/code] is used as extra modifications, using the [enum StatModification.Type] rules. [br]
+func get_stat(stat : StringName, default_value : float = 0.0, with_parent_sheet : bool = true) -> float:
+	if parent_sheet == null || !with_parent_sheet:
+		return _toplevel_stats.get(stat, default_value)
+
+	var precalc := _get_toplevel_precalculated(stat)
+	if precalc != _stat_default:
+		return _precalculated_to_value(precalc)
+
+	return default_value
+
+## Retrieves a stat's modifications, applying them to the specified base value, using all [enum StatModification.Type] rules. [br]
+func use_stat(on_value : float, stat : StringName) -> float:
+	if stat == &"":
+		return on_value
+
+	var precalc := _get_toplevel_precalculated(stat)
+	if precalc != _stat_default:
+		precalc.x.x += on_value
+		return _precalculated_to_value(precalc)
+
+	return on_value
+
+## Uses [method use_stat] on several stats to modify one base value, using all [enum StatModification.Type] rules. [br]
+func use_stats(on_value : float, stats : Array[StringName]) -> float:
+	var precalc := _stat_default
+	precalc.x.x += on_value
+	for x in stats:
+		precalc = _combine_precalculated(precalc, _get_toplevel_precalculated(x))
+
+	return _precalculated_to_value(precalc)
 
 ## Retrieves a stat's value from a specific path, of a specific modification type.
 func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : StringName = &".", modification_type : StatModification.Type = -1) -> float:
@@ -105,7 +147,7 @@ func get_stat_at_path(stat : StringName, default_value : float = 0.0, path : Str
 		StatModification.Type.UPPER_LIMIT:
 			return result_matrix.y.w
 		_:
-			return _matrix_to_value(result_matrix)
+			return _precalculated_to_value(result_matrix)
 
 	return default_value
 
@@ -303,6 +345,14 @@ func _process(delta : float):
 	_timed_queue.process(delta)
 
 
+func _get_toplevel_precalculated(stat : StringName) -> Projection:
+	if parent_sheet == null:
+		return _precalculated_stats_at[&"."].get(stat, _stat_default)
+
+	# ATTENTION: if a Stack Overflow got you here you probably made a cyclic reference in your parent_sheet.
+	return _combine_precalculated(parent_sheet._get_toplevel_precalculated(stat), _precalculated_stats_at[&"."].get(stat, _stat_default))
+
+
 func _create_path(path : StringName):
 	if _children_of.has(path):
 		return
@@ -333,10 +383,11 @@ func _recalculate_upwards_one(path : StringName, stat_to_precalc : StringName):
 		path = _parents_of[path]
 
 	var old_stat : float = _toplevel_stats.get(stat_to_precalc, 0.0)
-	var new_stat : float = _matrix_to_value(result)
-	_toplevel_stats[stat_to_precalc] = new_stat
-	if old_stat != new_stat:
-		stat_changed.emit(stat_to_precalc, new_stat, old_stat)
+	var new_stat_raw : float = _precalculated_to_value(result)
+	_toplevel_stats[stat_to_precalc] = new_stat_raw
+	var new_stat : float = get_stat(stat_to_precalc)
+	stat_changed.emit(stat_to_precalc, new_stat, old_stat)
+	stat_changed_raw.emit(stat_to_precalc, new_stat_raw, old_stat)
 
 
 func _recalculate_upwards(path : StringName):
@@ -364,13 +415,14 @@ func _recalculate_upwards(path : StringName):
 			stat_changed.emit(k, 0, toplevel_stats_old[k])
 
 	_toplevel_stats = {}
-	for k in result:
-		var v : Projection = result[k]
-		var old_stat : float = toplevel_stats_old.get(k, 0.0)
-		var new_stat : float = _matrix_to_value(v)
-		_toplevel_stats[k] = new_stat
-		if old_stat != new_stat:
-			stat_changed.emit(k, new_stat, old_stat)
+	for final_stat_k in result:
+		var v : Projection = result[final_stat_k]
+		var old_stat : float = toplevel_stats_old.get(final_stat_k, 0.0)
+		var new_stat_raw : float = _precalculated_to_value(v)
+		_toplevel_stats[final_stat_k] = new_stat_raw
+		var new_stat : float = get_stat(final_stat_k)
+		stat_changed.emit(final_stat_k, new_stat, old_stat)
+		stat_changed_raw.emit(final_stat_k, new_stat_raw, old_stat)
 
 
 func _combine_precalculated(to_combine : Projection, with : Projection) -> Projection:
@@ -392,7 +444,7 @@ func _combine_precalculated(to_combine : Projection, with : Projection) -> Proje
 	)
 
 
-func _matrix_to_value(v : Projection) -> float:
+func _precalculated_to_value(v : Projection) -> float:
 	return clampf(v.x.x * (v.x.y * 0.01 * v.x.z + 1.0) * (v.x.w) + v.y.x, v.y.z, v.y.w)
 
 
@@ -416,3 +468,7 @@ func _on_timer_expired(key : StringName):
 
 func _on_timer_add_conflict(removed_key : StringName, removed_index : int):
 	_timer_conflict = removed_index
+
+
+func _on_parent_stat_changed(stat : StringName, new_value : float, old_value : float):
+	stat_changed.emit(stat, get_stat(stat), old_value)

@@ -124,12 +124,12 @@ func _applied(holder : TriggerReactionContainer, result_or_params : RefCounted):
 
 func _attached(holder : TriggerReactionContainer):
 	if func_attached != &"":
-		holder.call(func_attached, holder)
+		reaction_instance.call(func_attached, holder, self)
 
 
 func _detached(holder : TriggerReactionContainer):
 	if func_detached != &"":
-		holder.call(func_detached, holder)
+		reaction_instance.call(func_detached, holder, self)
 
 
 func _get_property_list() -> Array:

@@ -45,29 +45,35 @@ func to_code(index : int) -> String:
 	var trigger_snake := trigger_name.to_lower().strip_edges()
 	var trigger_class := trigger_name.capitalize().replace(" ", "").strip_edges() + "Result"
 
-	# class SkillUsed extends Resource:
-	# > @export var user : CombatActor
-	# > @export var skill : Skill
-	# > @export var direction : Vector2 = Vector2.ZERO
-	lines.append("class " + trigger_class + " extends Resource:")
+	# class SkillUsedResult extends RefCounted:
+	# > var trigger_input_values : SkillUsedResult
+	# > var user : CombatActor
+	# > var skill : Skill
+	# > var direction : Vector2 = Vector2.ZERO
+	lines.append("class " + trigger_class + " extends RefCounted:")
+	lines.append("\tvar trigger_input_values : " + trigger_class)
 	for x in property_infos:
 		lines.append("\tvar " + x)
 
 	lines.append("\tpass\n\n")
 	# func skill_used(user : CombatActor, skill : Skill, direction : Vector2 = Vector2.ZERO):
 	# > var result := SkillUsedResult.new(user, skill, direction)
-	# > for x in _trigger_reactions[7]:
-	# > > x._applied(self, result)
-	# > 
+	# > result.trigger_input_values = SkillUsedResult.new(user, skill, direction)
+	# > if _trigger_reactions[7].size() > 0:
+	# > > _process_reactions(result, 7, 0, _trigger_reactions[7][-1].priority)
+	# > trigger_fired.emit(7, result)
 	# > return result
 	lines.append("func " + trigger_snake + "(" + ", ".join(property_infos) + ") -> " + trigger_class + ":")
 	lines.append("\tvar result := " + trigger_class + ".new()")
+	lines.append("\tresult.trigger_input_values = " + trigger_class + ".new()")
 	for x in property_infos:
 		lines.append("\tresult." + just_name(x) + " = " + just_name(x))
+		lines.append("\tresult.trigger_input_values." + just_name(x) + " = " + just_name(x))
 
-	lines.append("\tfor x in _trigger_reactions[" + str(index) + "]:")
-	lines.append("\t\tx._applied(self, result)")
+	lines.append("\tif _trigger_reactions[%s].size() > 0:" % index)
+	lines.append("\t\t_process_reactions(result, %s, 0, _trigger_reactions[%s][-1].priority)" % [index, index])
 	lines.append("\t")
+	lines.append("\ttrigger_fired.emit(%s, result)" % index)
 	lines.append("\treturn result")
 
 	return "\n".join(lines)
