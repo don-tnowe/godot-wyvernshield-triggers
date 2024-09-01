@@ -7,6 +7,8 @@ extends Resource
 	set(v):
 		trigger_name = v
 		emit_changed()
+## If [code]true[/code], the result object created by the trigger call will contain a copy of the values provided to the trigger call, inside its [code]trigger_input_values[/code] property.
+@export var keep_initial_params := false
 ## Trigger parameters, specified in format [code]name : datatype = default[/code]. Default is optional.
 @export var property_infos : Array[String]
 
@@ -51,7 +53,9 @@ func to_code(index : int) -> String:
 	# > var skill : Skill
 	# > var direction : Vector2 = Vector2.ZERO
 	lines.append("class " + trigger_class + " extends RefCounted:")
-	lines.append("\tvar trigger_input_values : " + trigger_class)
+	if keep_initial_params:
+		lines.append("\tvar trigger_input_values : " + trigger_class)
+
 	for x in property_infos:
 		lines.append("\tvar " + x)
 
@@ -65,10 +69,13 @@ func to_code(index : int) -> String:
 	# > return result
 	lines.append("func " + trigger_snake + "(" + ", ".join(property_infos) + ") -> " + trigger_class + ":")
 	lines.append("\tvar result := " + trigger_class + ".new()")
-	lines.append("\tresult.trigger_input_values = " + trigger_class + ".new()")
+	if keep_initial_params:
+		lines.append("\tresult.trigger_input_values = " + trigger_class + ".new()")
+
 	for x in property_infos:
 		lines.append("\tresult." + just_name(x) + " = " + just_name(x))
-		lines.append("\tresult.trigger_input_values." + just_name(x) + " = " + just_name(x))
+		if keep_initial_params:
+			lines.append("\tresult.trigger_input_values." + just_name(x) + " = " + just_name(x))
 
 	lines.append("\tif _trigger_reactions[%s].size() > 0:" % index)
 	lines.append("\t\t_process_reactions(result, %s, 0, _trigger_reactions[%s][-1].priority)" % [index, index])

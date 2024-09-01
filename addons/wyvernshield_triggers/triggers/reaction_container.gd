@@ -172,7 +172,6 @@ func find_reaction(reaction_id : StringName) -> TriggerReaction:
 # Auto-generated
 
 class MoveStateChangedResult extends RefCounted:
-	var trigger_input_values : MoveStateChangedResult
 	var old_state
 	var new_state
 	pass
@@ -180,11 +179,8 @@ class MoveStateChangedResult extends RefCounted:
 
 func move_state_changed(old_state, new_state) -> MoveStateChangedResult:
 	var result := MoveStateChangedResult.new()
-	result.trigger_input_values = MoveStateChangedResult.new()
 	result.old_state = old_state
-	result.trigger_input_values.old_state = old_state
 	result.new_state = new_state
-	result.trigger_input_values.new_state = new_state
 	if _trigger_reactions[0].size() > 0:
 		_process_reactions(result, 0, 0, _trigger_reactions[0][-1].priority)
 	
@@ -193,7 +189,6 @@ func move_state_changed(old_state, new_state) -> MoveStateChangedResult:
 
 
 class AbilityUsedResult extends RefCounted:
-	var trigger_input_values : AbilityUsedResult
 	var ability
 	var target
 	var spawned_nodes : Array[Node] = []
@@ -202,13 +197,9 @@ class AbilityUsedResult extends RefCounted:
 
 func ability_used(ability, target, spawned_nodes : Array[Node] = []) -> AbilityUsedResult:
 	var result := AbilityUsedResult.new()
-	result.trigger_input_values = AbilityUsedResult.new()
 	result.ability = ability
-	result.trigger_input_values.ability = ability
 	result.target = target
-	result.trigger_input_values.target = target
 	result.spawned_nodes = spawned_nodes
-	result.trigger_input_values.spawned_nodes = spawned_nodes
 	if _trigger_reactions[1].size() > 0:
 		_process_reactions(result, 1, 0, _trigger_reactions[1][-1].priority)
 	
@@ -217,7 +208,6 @@ func ability_used(ability, target, spawned_nodes : Array[Node] = []) -> AbilityU
 
 
 class AbilityGetCostResult extends RefCounted:
-	var trigger_input_values : AbilityGetCostResult
 	var ability
 	var target
 	var cost : float
@@ -226,13 +216,9 @@ class AbilityGetCostResult extends RefCounted:
 
 func ability_get_cost(ability, target, cost : float) -> AbilityGetCostResult:
 	var result := AbilityGetCostResult.new()
-	result.trigger_input_values = AbilityGetCostResult.new()
 	result.ability = ability
-	result.trigger_input_values.ability = ability
 	result.target = target
-	result.trigger_input_values.target = target
 	result.cost = cost
-	result.trigger_input_values.cost = cost
 	if _trigger_reactions[2].size() > 0:
 		_process_reactions(result, 2, 0, _trigger_reactions[2][-1].priority)
 	
@@ -241,7 +227,6 @@ func ability_get_cost(ability, target, cost : float) -> AbilityGetCostResult:
 
 
 class HitLandedResult extends RefCounted:
-	var trigger_input_values : HitLandedResult
 	var target
 	var with_ability
 	var damage : float
@@ -250,13 +235,9 @@ class HitLandedResult extends RefCounted:
 
 func hit_landed(target, with_ability, damage : float) -> HitLandedResult:
 	var result := HitLandedResult.new()
-	result.trigger_input_values = HitLandedResult.new()
 	result.target = target
-	result.trigger_input_values.target = target
 	result.with_ability = with_ability
-	result.trigger_input_values.with_ability = with_ability
 	result.damage = damage
-	result.trigger_input_values.damage = damage
 	if _trigger_reactions[3].size() > 0:
 		_process_reactions(result, 3, 0, _trigger_reactions[3][-1].priority)
 	
@@ -289,16 +270,13 @@ func hit_received(from, ability, damage : float) -> HitReceivedResult:
 
 
 class ApplyStatDerivativesResult extends RefCounted:
-	var trigger_input_values : ApplyStatDerivativesResult
 	var stat_sheet : StatSheet
 	pass
 
 
 func apply_stat_derivatives(stat_sheet : StatSheet) -> ApplyStatDerivativesResult:
 	var result := ApplyStatDerivativesResult.new()
-	result.trigger_input_values = ApplyStatDerivativesResult.new()
 	result.stat_sheet = stat_sheet
-	result.trigger_input_values.stat_sheet = stat_sheet
 	if _trigger_reactions[5].size() > 0:
 		_process_reactions(result, 5, 0, _trigger_reactions[5][-1].priority)
 	

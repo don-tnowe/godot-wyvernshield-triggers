@@ -9,36 +9,42 @@
 resource_name = "Move State Changed"
 script = ExtResource("4_23861")
 trigger_name = &"move_state_changed"
+keep_initial_params = false
 property_infos = Array[String](["old_state", "new_state"])
 
 [sub_resource type="Resource" id="Resource_4wedb"]
 resource_name = "Ability Used"
 script = ExtResource("4_23861")
 trigger_name = &"ability_used"
+keep_initial_params = false
 property_infos = Array[String](["ability", "target", "spawned_nodes : Array[Node] = []"])
 
 [sub_resource type="Resource" id="Resource_gtdv2"]
 resource_name = "Ability Get Cost"
 script = ExtResource("4_23861")
 trigger_name = &"ability_get_cost"
+keep_initial_params = false
 property_infos = Array[String](["ability", "target", "cost : float"])
 
 [sub_resource type="Resource" id="Resource_8xpwb"]
 resource_name = "Hit Landed"
 script = ExtResource("4_23861")
 trigger_name = &"hit_landed"
+keep_initial_params = false
 property_infos = Array[String](["target", "with_ability", "damage : float"])
 
 [sub_resource type="Resource" id="Resource_ye17i"]
 resource_name = "Hit Received"
 script = ExtResource("4_23861")
 trigger_name = &"hit_received"
+keep_initial_params = true
 property_infos = Array[String](["from", "ability", "damage : float"])
 
 [sub_resource type="Resource" id="Resource_l8wok"]
 resource_name = "Apply Stat Derivatives"
 script = ExtResource("4_23861")
 trigger_name = &"apply_stat_derivatives"
+keep_initial_params = false
 property_infos = Array[String](["stat_sheet : StatSheet"])
 
 [resource]
